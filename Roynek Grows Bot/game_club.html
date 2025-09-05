@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tapping Card Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #282c34;
+            color: white;
+            font-family: Arial, sans-serif;
+            background-color: #030124;
+            /* background-image: url(../../images/a1in1mover.gif); */
+            background-image: url(https://roynek.com/alltrenders/codes/images/a1in1mover.gif);
+            background-size: 100%;
+        }
+        #game-container {
+            text-align: center;
+            position: relative;
+        }
+        #score {
+            margin-bottom: 20px;
+            font-size: 1.7em;
+        }
+        #card-display {
+            position: relative;
+            width: 200px;
+            height: 300px;
+            border: 2px solid white;
+            border-radius: 10px;
+            background-color: #444;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            flex-direction: column;
+            margin: auto;
+        }
+
+        /* #card-display {
+            width: 200px;
+            height: 300px;
+            border: 2px solid white;
+            border-radius: 10px;
+            background-color: #444;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            margin: auto;
+        } */
+
+        .center-icon {
+            font-size: 3em; /* Increase the size of the icon */
+        }
+
+        .top-right-number, .bottom-left-number {
+            position: absolute;
+            font-size: 1.2em;
+        }
+
+        .top-right-number {
+            top: 10px;
+            right: 10px;
+        }
+
+        .bottom-left-number {
+            bottom: 10px;
+            left: 10px;
+        }
+
+        .center-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+        }
+
+        #button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Adjust the gap between buttons if needed */
+        }
+
+        .category-button {
+            margin: 0;
+            padding: 17px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        /* .category-button {
+            margin: 5px;
+            padding: 17px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        } */
+        .category-button svg {
+            /* margin-right: 23px; */
+            font-size: 23;
+        }
+        #star { background-color: gold; }
+        #circle { background-color: red; }
+        #cross { background-color: green; }
+        #triangle { background-color: blue; }
+        #square { background-color: purple; }
+        .points-popup {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            opacity: 0;
+            transition: opacity 0.5s ease, top 0.5s ease;
+            color: beige;
+        }
+        #timer {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        /* CSS for the full-screen black overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            z-index: 9999; /* Ensure it's on top of everything */
+        }
+
+
+
+        .popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 300px;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .popup.success { background-color: #d4edda; color: #155724; }
+        .popup.error { background-color: #f8d7da; color: #721c24; }
+        .popup.warning { background-color: #fff3cd; color: #856404; }
+        .popup .icon { font-size: 50px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="timer">Time Left: <span id="time-left"></span>s</div>
+        <div id="score">Score: 0</div>
+        <div id="card-display">
+            <div class="top-right-number">*</div>
+            <div class="center-icon">
+                <!-- <svg width="150" height="160" fill="currentColor"><circle cx="80" cy="80" r="70"></circle></svg> -->
+                <em style="font-size: 1.2rem;">Loading...</em>
+            </div>
+            <div class="bottom-left-number">*</div>
+        </div>
+        <br/>
+        <div id="button-container">
+            <button id="star" class="category-button">
+                <svg width="24" height="24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                
+            </button>
+            <button id="circle" class="category-button">
+                <svg width="24" height="24" fill="currentColor"><circle cx="12" cy="12" r="10"></circle></svg>
+                
+            </button>
+            <button id="cross" class="category-button">
+                <svg width="24" height="24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+                
+            </button>
+            <button id="triangle" class="category-button">
+                <svg width="24" height="24" fill="currentColor"><path d="M12 2L2 22h20L12 2z"></path></svg>
+                
+            </button>
+            <button id="square" class="category-button">
+                <svg width="24" height="24" fill="currentColor"><rect x="4" y="4" width="16" height="16"></rect></svg>
+                
+            </button>
+        </div>
+        <div class="points-popup" id="points-popup"></div>
+    </div>
+
+
+    <div id="successPopup" class="popup success">
+        <div class="icon">✔️</div>
+        <div id="successMessage">Success message</div>
+    </div>
+    <div id="errorPopup" class="popup error">
+        <div class="icon">❌</div>
+        <div id="errorMessage">Error message</div>
+    </div>
+    <div id="warningPopup" class="popup warning">
+        <div class="icon">⚠️</div>
+        <div id="warningMessage">Warning message</div>
+    </div>
+
+
+    <script>
+        // let cards = [
+        //     { category: "star", count: 1 },
+        //     { category: "circle", count: 4 },
+        //     { category: "cross", count: 3 },
+        //     { category: "triangle", count: 8 },
+        //     { category: "whot", count: "any" },
+        //     { category: "joker", count: "any" }
+        // ];
+
+        // let currentCardIndex = 0;
+        // let userTaps = {};
+        // let score = 0;
+        // let card_duration = 2000;
+        // let total_time = card_duration * cards.length / 1000;
+        // let cardDisplay = document.getElementById("card-display");
+        // let scoreDisplay = document.getElementById("score");
+        // let pointsPopup = document.getElementById("points-popup");
+        // let timerDisplay = document.getElementById("time-left");
+        // timerDisplay.textContent = total_time;
+
+        // async function fetchGameData() {
+        //     const response = await fetch('create_game_data.php');
+        //     const gameData = await response.json();
+        //     cards = gameData.gameData;
+        //     timerDisplay.textContent = cards.length * (cardDuration / 1000);
+        //     // startTimer();
+        //     showNextCard();
+        // }
+
+        let cards = [];
+        let currentCardIndex = 0;
+        let userTaps = {};
+        let score = 0;
+        let gameId = null;
+        let cardDuration = 2000;
+        let cardDisplay = document.getElementById("card-display");
+        let scoreDisplay = document.getElementById("score");
+        let pointsPopup = document.getElementById("points-popup");
+        let timerDisplay = document.getElementById("time-left");
+        let cardState = {};
+
+        // console.log('Success:', data);
+        // showPopup('success', `Well Done. Your score has been updated.`);
+        // addQueryParam("freeze_time", "60000");
+        // setTimeout(() => { navigateTo(page='game_flow.html'); }, 3000);
+        // async function fetchGameData() {
+        //     const response = await fetch('create_game_data.php');
+        //     const gameData = await response.json();
+        //     cards = gameData.gameData;
+        //     gameId = gameData.gameId;
+        //     console.log(cards);
+        //     timerDisplay.textContent = cards.length * (cardDuration / 1000);
+        //     showNextCard();
+        // }
+        async function fetchGameData() {
+            try {
+                const response = await fetch('create_game_data.php');
+                const gameData = await response.json();
+
+                if (!gameData.status) {
+                    showPopup('error', "We have some issues with loading the game. Use a mobile device or try again later") // success, error, warning
+                    console.log("Error: " + gameData.msg);
+                    return;
+                }
+
+                cards = gameData.gameData;
+                gameId = gameData.gameId;
+                console.log(cards);
+                timerDisplay.textContent = cards.length * (cardDuration / 1000);
+                showNextCard();
+            } catch (error) {
+                alert("An error occurred while fetching game data.");
+                console.error("Error fetching game data:", error);
+            }
+        }
+
+
+        document.querySelectorAll('.category-button').forEach(button => {
+            button.addEventListener('click', () => handleButtonClick(button.id));
+        });
+
+        function handleButtonClick(category) {
+            if (currentCardIndex >= cards.length) return;
+            
+            const currentCard = cards[currentCardIndex];
+            userTaps[currentCardIndex] = userTaps[currentCardIndex] || { category: currentCard.category, taps: 0 };
+            userTaps[currentCardIndex].taps++;
+
+            if (currentCard.category === "whot" || currentCard.category === "joker") {
+                score++;
+                showPointsPopup("+1", "green");
+            } else {
+                if (userTaps[currentCardIndex].taps <= currentCard.count) {
+                    score++;
+                    showPointsPopup("+1", "green");
+                } else if (userTaps[currentCardIndex].taps > currentCard.count) {
+                    if(cardState[currentCardIndex] == null){
+                        score = score - currentCard.count;
+                        cardState[currentCardIndex] = 0;
+                    }
+                    score--;
+                    showPointsPopup("-1", "red");
+                }
+            }
+
+            console.log(userTaps);
+            
+            scoreDisplay.textContent = `Score: ${score}`;
+        }
+
+        function showNextCard() {
+            if (currentCardIndex >= cards.length) {
+                sendResults();
+                return;
+            }
+
+            const currentCard = cards[currentCardIndex];
+            const cardNumber = currentCard.count;
+            const cardIcon = getCardIcon(currentCard.category);
+
+            document.querySelector('.top-right-number').textContent = cardNumber;
+            document.querySelector('.bottom-left-number').textContent = cardNumber;
+            document.querySelector('.center-icon').innerHTML = `<svg width="160" height="160" fill="currentColor">${cardIcon}</svg>`;
+
+            setTimeout(() => {
+                document.querySelector('.top-right-number').textContent = '';
+                document.querySelector('.bottom-left-number').textContent = '';
+                document.querySelector('.center-icon').innerHTML = '';
+                currentCardIndex++;
+                showNextCard();
+            }, cardDuration);
+        }
+
+        // function showNextCard() {
+        //     if (currentCardIndex >= cards.length) {
+        //         sendResults();
+        //         return;
+        //     }
+
+        //     const currentCard = cards[currentCardIndex];
+        //     const cardNumber = currentCard.count;
+        //     const cardIcon = getCardIcon(currentCard.category);
+
+        //     document.querySelector('.top-right-number').textContent = cardNumber;
+        //     document.querySelector('.bottom-left-number').textContent = cardNumber;
+        //     document.querySelector('.center-icon').innerHTML = `<svg width="160" height="160" fill="currentColor">${cardIcon}</svg>`;
+
+        //     setTimeout(() => {
+        //         document.querySelector('.top-right-number').textContent = '';
+        //         document.querySelector('.bottom-left-number').textContent = '';
+        //         document.querySelector('.center-icon').innerHTML = '';
+        //         currentCardIndex++;
+        //         showNextCard();
+        //     }, card_duration);
+        // }
+
+
+        function showPointsPopup(points, color) {
+            pointsPopup.textContent = points;
+            pointsPopup.style.color = color;
+            pointsPopup.style.top = '50px';
+            pointsPopup.style.opacity = '1';
+            setTimeout(() => {
+                pointsPopup.style.top = '20px';
+                pointsPopup.style.opacity = '0';
+            }, 500);
+        }
+
+        // function getCardIcon(category) {
+        //     switch(category) {
+        //         case "star": return '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"></path>';
+        //         case "circle": return '<circle cx="12" cy="12" r="10"></circle>';
+        //         case "cross": return '<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>';
+        //         case "triangle": return '<path d="M12 2L2 22h20L12 2z"></path>';
+        //         case "square": return '<rect x="4" y="4" width="16" height="16"></rect>';
+        //         default: return '';
+        //     }
+        // }
+
+        function getCardIcon(category) {
+            switch(category) {
+                case "star":
+                    return '<svg viewBox="0 0 24 24" width="160" height="160"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>';
+                case "circle":
+                    return '<svg viewBox="0 0 24 24" width="160" height="160"><circle cx="12" cy="12" r="10"></circle></svg>';
+                case "cross":
+                    return '<svg viewBox="0 0 24 24" width="160" height="160"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>';
+                case "triangle":
+                    return '<svg viewBox="0 0 24 24" width="160" height="160"><path d="M12 2L2 22h20L12 2z"></path></svg>';
+                case "square":
+                    return '<svg viewBox="0 0 24 24" width="160" height="160"><rect x="4" y="4" width="16" height="16"></rect></svg>';
+                default:
+                    return '';
+            }
+        }
+
+
+        function startTimer() {
+            let countdown = setInterval(() => {
+                total_time--;
+                timerDisplay.textContent = total_time;
+                if (total_time <= 0) {
+                    clearInterval(countdown);
+                }
+            }, 1000);
+        }
+
+        // function sendResults() {
+        //     const results = {
+        //         cards: cards,
+        //         userTaps: userTaps,
+        //         score: score
+        //     };
+
+        //     fetch('add_user_score.php', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify(results)
+        //     }).then(response => response.json())
+        //       .then(data => console.log('Success:', data))
+        //       .catch(error => console.error('Error:', error));
+        // }
+        function sendResults() {
+            const formData = new FormData();
+            formData.append('cards', JSON.stringify(cards));
+            formData.append('user_taps', JSON.stringify(userTaps));
+            formData.append('score', score);
+            formData.append('game_id', gameId);
+
+            fetch('add_user_score.php', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                showPopup('success', `Well Done. Your score has been updated.`);
+                addQueryParam("freeze_time", "60000");
+                setTimeout(() => { navigateTo(page='game_flow.html'); }, 3000);
+                // navigateTo();
+            })
+            .catch(error => {
+                showPopup('error', "We have some issue with updating your score. Try again later.") // success, error, warning
+                console.error('Error:', error)
+            });
+        }
+
+        function navigateTo(page = 'game_club.html') {
+            const params = new URLSearchParams(window.location.search);
+            window.location.href = `${page}?${params.toString()}`;
+        }
+
+        function showPopup(type, message) {
+            let popup = document.getElementById(`${type}Popup`);
+            document.getElementById(`${type}Message`).textContent = message;
+            popup.style.display = 'block';
+            setTimeout(() => { popup.style.display = 'none'; }, 3000);
+        }
+
+        function addQueryParam(param, value) {
+            const url = new URL(window.location);
+            url.searchParams.set(param, value);
+            window.history.replaceState(null, '', url.toString());
+        }
+
+        // Function to show countdown overlay and then execute showNextCard after 3 seconds
+        function showNextCardWithCountdown() {
+            // Create overlay element
+            const overlay = document.createElement('div');
+            overlay.classList.add('overlay');
+            overlay.textContent = '5'; // Initial countdown value
+
+            // Add overlay to the document
+            document.body.appendChild(overlay);
+
+            // Function to update countdown text
+            function updateCountdown(count) {
+                overlay.textContent = count.toString();
+                if (count <= 0) {
+                    // Remove overlay when countdown finishes
+                    document.body.removeChild(overlay);
+                    // Call your function after countdown
+                    // showNextCard();
+                    fetchGameData();
+                } else {
+                    // Schedule next countdown update
+                    setTimeout(() => {
+                        updateCountdown(count - 1);
+                    }, 1000); // Update every second (1000 ms)
+                }
+            }
+
+            // Start countdown
+            updateCountdown(5); // Start from 5 seconds
+        }
+
+        // Wrap showNextCard() in a timeout after 3 seconds
+        setTimeout(showNextCardWithCountdown, 5000); // 5000 ms = 5 seconds
+
+        // startTimer();
+        // showNextCard();
+
+        //the main fire function fot the game...
+        // fetchGameData();
+    </script>
+    <!-- <div class="overlay" id="overlay">
+    </div> -->
+</body>
+</html>

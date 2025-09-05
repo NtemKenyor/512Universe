@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tapping Card Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #282c34;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            text-align: center;
+            position: relative;
+        }
+        #score {
+            margin-bottom: 20px;
+            font-size: 1.7em;
+        }
+        #card-display {
+            position: relative;
+            width: 200px;
+            height: 300px;
+            border: 2px solid white;
+            border-radius: 10px;
+            background-color: #444;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            flex-direction: column;
+            margin: auto;
+        }
+        .center-icon {
+            font-size: 3em;
+        }
+        .top-right-number, .bottom-left-number {
+            position: absolute;
+            font-size: 1.2em;
+        }
+        .top-right-number {
+            top: 10px;
+            right: 10px;
+        }
+        .bottom-left-number {
+            bottom: 10px;
+            left: 10px;
+        }
+        .center-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+        }
+        #button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .category-button {
+            margin: 0;
+            padding: 17px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .category-button svg {
+            font-size: 23px;
+        }
+        #star { background-color: gold; }
+        #circle { background-color: red; }
+        #cross { background-color: green; }
+        #triangle { background-color: blue; }
+        #square { background-color: purple; }
+        .points-popup {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            opacity: 0;
+            transition: opacity 0.5s ease, top 0.5s ease;
+            color: beige;
+        }
+        #timer {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="timer">Time Left: <span id="time-left"></span>s</div>
+        <div id="score">Score: 0</div>
+        <div id="card-display">
+            <div class="top-right-number">*</div>
+            <div class="center-icon">
+                <svg width="150" height="160" fill="currentColor"><circle cx="80" cy="80" r="70"></circle></svg>
+            </div>
+            <div class="bottom-left-number">*</div>
+        </div>
+        <br/>
+        <div id="button-container">
+            <button id="star" class="category-button">
+                <svg width="24" height="24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+            </button>
+            <button id="circle" class="category-button">
+                <svg width="24" height="24" fill="currentColor"><circle cx="12" cy="12" r="10"></circle></svg>
+            </button>
+            <button id="cross" class="category-button">
+                <svg width="24" height="24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+            </button>
+            <button id="triangle" class="category-button">
+                <svg width="24" height="24" fill="currentColor"><path d="M12 2L2 22h20L12 2z"></path></svg>
+            </button>
+            <button id="square" class="category-button">
+                <svg width="24" height="24" fill="currentColor"><rect x="4" y="4" width="16" height="16"></rect></svg>
+            </button>
+        </div>
+        <div class="points-popup" id="points-popup"></div>
+    </div>
+    <script>
+        let cards = [];
+        let currentCardIndex = 0;
+        let userTaps = {};
+        let score = 0;
+        let cardDuration = 2000;
+        let cardDisplay = document.getElementById("card-display");
+        let scoreDisplay = document.getElementById("score");
+        let pointsPopup = document.getElementById("points-popup");
+        let timerDisplay = document.getElementById("time-left");
+
+        async function fetchGameData() {
+            const response = await fetch('create_game_data.php');
+            const gameData = await response.json();
+            cards = gameData.gameData;
+            timerDisplay.textContent = cards.length * (cardDuration / 1000);
+            showNextCard();
+        }
+
+        document.querySelectorAll('.category-button').forEach(button => {
+            button.addEventListener('click', () => handleButtonClick(button.id));
+        });
+
+        function handleButtonClick(category) {
+            if (currentCardIndex >= cards.length) return;
+
+            const currentCard = cards[currentCardIndex];
+            userTaps[currentCardIndex] = userTaps[currentCardIndex] || { category: currentCard.category, taps: 0 };
+            userTaps[currentCardIndex].taps++;
+
+            if (currentCard.category === "whot" || currentCard.category === "joker") {
+                score++;
+                showPointsPopup("+1", "green");
+            } else {
+                if (userTaps[currentCardIndex].taps === currentCard.count) {
+                    score++;
+                    showPointsPopup("+1", "green");
+                } else if (userTaps[currentCardIndex].taps > currentCard.count) {
+                    score--;
+                    showPointsPopup("-1", "red");
+                }
+            }
+
+            scoreDisplay.textContent = `Score: ${score}`;
+        }
+
+        function showNextCard() {
+            if (currentCardIndex >= cards.length) {
+                sendResults();
+                return;
+            }
+
+            const currentCard = cards[currentCardIndex];
+            const cardNumber = currentCard.count;
+            const cardIcon = getCardIcon(currentCard.category);
+
+            document.querySelector('.top-right-number').textContent = cardNumber;
+            document.querySelector('.bottom-left-number').textContent = cardNumber;
+            document.querySelector('.center-icon').innerHTML = `<svg width="160" height="160" fill="currentColor">${cardIcon}</svg>`;
+
+            setTimeout(() => {
+                document.querySelector('.top-right-number').textContent = '';
+                document.querySelector('.bottom-left-number').textContent = '';
+                document.querySelector('.center-icon').innerHTML = '';
+                currentCardIndex++;
+                showNextCard();
+            }, cardDuration);
+        }
+
+        function showPointsPopup(points, color) {
+            pointsPopup.textContent = points;
+            pointsPopup.style.color = color;
+            pointsPopup.style.top = '50px';
+            pointsPopup.style.opacity = '1';
+            setTimeout(() => {
+                pointsPopup.style.top = '20px';
+                pointsPopup.style.opacity = '0';
+            }, 500);
+        }
+
+        function getCardIcon(category) {
+            switch(category) {
+                case "star":
+                    return '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"></path>';
+                case "circle":
+                    return '<circle cx="12" cy="12" r="10"></circle>';
+                case "cross":
+                    return '<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>';
+                case "triangle":
+                    return '<path d="M12 2L2 22h20L12 2z"></path>';
+                case "square":
+                    return '<rect x="4" y="4" width="16" height="16"></rect>';
+                default:
+                    return '<circle cx="80" cy="80" r="70"></circle>';
+            }
+        }
+
+        async function sendResults() {
+            const payload = {
+                score: score
+            };
+
+            const response = await fetch('add_user_score.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert("Score submitted successfully!");
+            } else {
+                alert("Failed to submit score.");
+            }
+        }
+
+        fetchGameData();
+    </script>
+</body>
+</html>

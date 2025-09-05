@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roynek Grows Games </title>
+    <!-- <link rel="icon" href="https://roynek.com/alltrenders/codes/Telegram_Bot/Roynek%20Grows%20Bot/icon.jpg" type="image/x-icon"> -->
+    <link rel="icon" href="https://roynek.com/alltrenders/codes/Telegram_Bot/Roynek%20Grows%20Bot/icon.jpg" type="image/x-icon">
+    <link rel="icon" type="image/jpeg" sizes="32x32" href="https://roynek.com/alltrenders/codes/Telegram_Bot/Roynek%20Grows%20Bot/icon-32x32.jpg">
+    <link rel="icon" type="image/jpeg" sizes="16x16" href="https://roynek.com/alltrenders/codes/Telegram_Bot/Roynek%20Grows%20Bot/icon-16x16.jpg">
+    <link rel="icon" type="image/ico" sizes="16x16" href="https://roynek.com/alltrenders/codes/Telegram_Bot/Roynek%20Grows%20Bot/icon-16x16.ico">
+
+    
+    <link rel="icon" href="https://roynek.com/alltrenders/codes/Telegram_Bot/Roynek%20Grows%20Bot/icon.ico" type="image/x-icon"> 
+    
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="https://roynek.com/Safe-Journey/script_pops.js" defer></script>
+    <!-- <script src="https://roynek.com/Safe-Journey/script.js?id=hyfheirjis" defer></script> -->
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            /* display: flex; */
+            /* flex-direction: column; */
+            height: 100vh;
+            /* justify-content: space-between; */
+            font-family: Arial, sans-serif;
+            background-color: #050138;
+            /* background-image: url(../../images/a1in1mover.gif); */
+            background-image: url(https://roynek.com/alltrenders/codes/images/a1in1mover.gif);
+            background-size: 100%;
+            color: #fff;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .bottom-bar {
+            display: flex;
+            position: fixed;
+            /* justify-content: space-around; */
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            padding: 9px;
+        }
+        
+        .tab:hover {
+            background-color: #555;
+        }
+
+        .tab svg {
+            display: block;
+            margin: 0 auto;
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="content" id="content">
+        <!-- Main content goes here -->
+        <!-- <p>Click a tab to change the background color.</p> -->
+        
+        
+    </div>
+    
+    
+
+    <script>
+
+    var score = "$$$";
+    // var data = user_details();
+    // https://youtube.com/@roynekgrowscoin
+    // ChannelMergerNodehttps://t.me/roynek_grows
+    // Example JSON structure
+
+    const tasks_structure = [
+        {
+            "hash": "X_task",
+            "description": "Follow us on X to get 300 grows coins.",
+            "link": "https://x.com/RoynekGrowsCoin"
+        },
+        {
+            "hash": "You_task",
+            "description": "Subscribe to our Youtube channel to get more 250 Roynek grows.",
+            "link": "https://youtube.com/@roynekgrowscoin?si=QnaxU9dcGyUit4Ai"
+        },
+        {
+            "hash": "T_task",
+            "description": "Follow our Telegram channel to get 200 grows coins.",
+            "link": "https://t.me/roynek_grows"
+        },
+
+        {
+            "hash": "W_task",
+            "description": "Join our WhatsApp channel to get 200 grows coins.",
+            "link": "https://whatsapp.com/channel/0029VaiLJMOIHphO3LUumg21"
+        },
+
+        {
+            "hash": "T_m_task",
+            "description": "Join our telegram group to connect with friends and discuss - 200 grows coins",
+            "link": "https://t.me/roynek_grows_coin"
+        },
+
+        {
+            "hash": "Tik__task",
+            "description": "Follow us on tiktok to get awesome videos about this project - 150 grows coins",
+            "link": "https://www.tiktok.com/@roynek.grows.coin?_t=8nT3lOZEwCr&_r=1"
+        }
+    ];
+
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const tabs = document.querySelectorAll('.tab');
+        const content = document.getElementById('content');
+
+        //fix the first tab
+        content.innerHTML = document.getElementById('game_board').innerHTML;
+
+        //Adding an event listener here for Wallets- Solfare
+        document.getElementById('solflareButton').addEventListener('click', connectSolflare);
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // console.log("inside here and yea");
+                const div = tab.getAttribute('data-div');
+                var elem = document.getElementById(div);
+                if (elem) {
+                    console.log(elem);
+                    content.innerHTML = elem.innerHTML;
+                    // console.log("here and 2");
+                } else {
+                    content.innerHTML = '<p>Error loading content.</p>';
+                    // console.log("here and more");
+                }
+            });
+        });
+
+        const userId = getQueryParam('tele_id'); // Get user ID from URL param
+        if (userId) {
+            const referralLink = `https://t.me/RoynekGrowsBot?start=${userId}`;
+            console.log('Referral Link:', referralLink); // Log the referral link to check if it's formatted correctly
+            const referralInputs = document.querySelectorAll('.referralLink');
+            referralInputs.forEach(input => {
+                // console.log('Setting value for:', input); // Log each input element before setting the value
+                // input.value = referralLink;
+                input.setAttribute("value", referralLink);
+            });
+        }
+
+
+        const score_board = document.querySelectorAll('.score_');
+
+        try {
+            const data = await user_details();
+            const score = (data && data.user.growse_ability) ? data.user.growse_ability : 0;
+
+            score_board.forEach(score_b => {
+                animateCount(score_b, score);
+                f_score = formatScore(score);
+                // score_b.innerHTML = f_score;
+                setTimeout(() => { score_b.innerHTML = f_score; }, 2000); 
+            });
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+            score_board.forEach(score_b => {
+                score_b.innerHTML = 'Error';
+            });
+        }
+        
+
+        const playButton = document.querySelector('.play');
+        const freezeTime = getQueryParam('freeze_time');
+
+        if (freezeTime) {
+            const freezeDuration = parseInt(freezeTime, 10);
+            if (!isNaN(freezeDuration) && freezeDuration > 0) {
+                // Set the button to be disabled initially
+                playButton.disabled = true;
+
+                let remainingTime = freezeDuration / 1000;
+
+                // Update button text every second
+                const countdownInterval = setInterval(() => {
+                    if (remainingTime > 0) {
+                        playButton.textContent = `Play (${remainingTime}s)`;
+                        remainingTime--;
+                    } else {
+                        clearInterval(countdownInterval);
+                        playButton.textContent = 'Play';
+                        playButton.disabled = false;
+                    }
+                }, 1000);
+
+                // Enable the button after the specified freeze time
+                setTimeout(() => {
+                    playButton.textContent = 'Play';
+                    playButton.disabled = false;
+                }, freezeDuration);
+            }
+        }
+
+        const tasks = document.querySelectorAll('.task');
+        // tasks.forEach(task => {
+        //     const startButton = task.querySelector('.starter');
+        //     const claimButton = task.querySelector('.claim');
+        //     const taskHash = task.getAttribute('data-task-hash');
+        //     console.log("on it and more");
+        //     startButton.addEventListener('click', () => {
+        //         // Redirect user to another page (example)
+        //         window.location.href = `another_page.html?task=${taskHash}`;
+        //         console.log("now clicked active");
+        //         // Enable the claim button and set a cookie
+        //         claimButton.disabled = false;
+        //         setCookie(taskHash, 'started', 1);
+        //     });
+
+        //     claimButton.addEventListener('click', () => {
+        //         checkTaskCompletion('add_task_reward.php', taskHash);
+        //         console.log("he has done it again");
+        //     });
+        // });
+
+
+
+        // tasks.forEach(task => {
+        //     const taskHash = task.getAttribute('data-task-hash');
+            
+        //     task.addEventListener('click', (e) => {
+        //         console.log("eh eh");
+        //         if (e.target.classList.contains('starter')) {
+        //             const claimButton = task.querySelector('.claim');
+                    
+        //             // Redirect user to another page (example)
+        //             window.location.href = `another_page.html?task=${taskHash}`;
+
+        //             // Enable the claim button and set a cookie
+        //             claimButton.disabled = false;
+        //             setCookie(taskHash, 'started', 1);
+        //         } else if (e.target.classList.contains('claim')) {
+        //             checkTaskCompletion('/path/to/check_task.php', taskHash);
+        //         }
+        //     });
+        // });
+
+        // tasks.forEach(task => {
+        //     const taskHash = task.getAttribute('data-task-hash');
+        //     const startButton = document.getElementById(`${taskHash}_starter`);
+        //     const claimButton = document.getElementById(`${taskHash}_claim`);
+            
+        //     startButton.addEventListener('click', () => {
+        //         // Redirect user to another page (example)
+        //         window.location.href = `another_page.html?task=${taskHash}`;
+
+        //         // Enable the claim button and set a cookie
+        //         claimButton.disabled = false;
+        //         setCookie(taskHash, 'started', 1);
+        //     });
+
+        //     claimButton.addEventListener('click', () => {
+        //         checkTaskCompletion('add_task_reward.php', taskHash);
+        //     });
+        // });
+
+
+        // After reading the telegram guidelines on games, we are no longer using cookies...
+        // checkCookies(tasks);
+        generateTasks(tasks_structure);
+    });
+
+    function task_matters(taskHash){
+        const claimButton = document.getElementById(`${taskHash}_claim`);
+        // Enable the claim button and set a cookie
+        claimButton.disabled = false;
+
+        // After reading the telegram guide, we are no longer using cookies
+        // setCookie(taskHash, 'started', 1);
+
+        // Find the link for the given taskHash in the tasks_structure
+        const task = tasks_structure.find(task => task.hash === taskHash);
+        if (task && task.link) {
+            // Redirect user to the specified link
+            window.location.href = task.link;
+        } else {
+            console.error('Link not found for task:', taskHash);
+        }
+        // const claimButton = document.getElementById(`${taskHash}_claim`);
+        // // Enable the claim button and set a cookie
+        // claimButton.disabled = false;
+        // setCookie(taskHash, 'started', 1);
+
+        // // Redirect user to another page (example)
+        // window.location.href = `another_page.html?task=${taskHash}`;
+
+    }
+
+    function claimer(taskHash){
+        checkTaskCompletion('add_task_reward.php', taskHash);
+    }
+
+    // Function to check cookies and enable claim buttons accordingly
+    function checkCookies(tasks) {
+        tasks.forEach(task => {
+            const taskHash = task.getAttribute('data-task-hash');
+            const claimButton = task.querySelector('.claim');
+            const cookieValue = getCookie(taskHash);
+            if (cookieValue === 'started') {
+                claimButton.disabled = false;
+            }
+        });
+    }
+
+    // Get cookie value by name
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    // Set cookie
+    function setCookie(name, value, days) {
+        const d = new Date();
+        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+        const expires = "expires=" + d.toUTCString();
+        document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        console.log("done with setting cookies");
+    }
+
+    function navigateTo(page = 'game_club.html') {
+        const params = new URLSearchParams(window.location.search);
+        window.location.href = `${page}?${params.toString()}`;
+    }
+
+    function getQueryParam(param) {
+        let params = new URLSearchParams(window.location.search);
+        return params.get(param);
+    }
+
+    function checkTaskCompletion(url = 'add_task_reward.php', taskHash) {
+        const formData = new FormData();
+        formData.append('task_hash', taskHash);
+
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.status) {
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while checking task completion.');
+        });
+    }
+
+    async function user_details(url = "game_user_info.php") {
+        if (getQueryParam('hash') && getQueryParam('tele_id') && getQueryParam('username')) {
+            const tele_id = getQueryParam('tele_id');
+            const username = getQueryParam('username');
+            const code = getQueryParam('code');
+            const hash = getQueryParam('hash');
+
+            const formData = new FormData();
+            formData.append('hash', hash);
+            formData.append('tele_id', tele_id);
+            formData.append('username', username);
+            formData.append('code', code);
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.status === true) {
+                    console.log(data.user.growse_ability);
+                    return data;
+                } else {
+                    console.log("Issues with connection");
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                return null;
+            }
+        }
+        return null;
+    }
+
+
+    function animateCount(element, target) {
+        let start = 0;
+        const duration = 1000;
+        const increment = target / (duration / 16);
+
+        function updateCount() {
+            start += increment;
+            element.innerHTML = Math.floor(start);
+            if (start < target) {
+                requestAnimationFrame(updateCount);
+                element.classList.add('counting');
+            } else {
+                element.innerHTML = target;
+                element.classList.remove('counting');
+            }
+        }
+
+        updateCount();
+    }
+
+
+    function formatScore(score) {
+        // Ensure the score is a number and fixed to 2 decimal places
+        let formattedScore = parseFloat(score).toFixed(2);
+
+        // Use a regular expression to add commas as thousand separators
+        formattedScore = formattedScore.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+        return formattedScore;
+    }
+
+
+    function copyReferralLink() {
+        const referralInput = document.getElementById('referralLink');
+        referralInput.select();
+        referralInput.setSelectionRange(0, 99999); // For mobile devices
+
+        try {
+            document.execCommand('copy');
+            alert('Referral link copied to clipboard');
+        } catch (err) {
+            alert('Failed to copy referral link');
+        }
+    }
+
+
+    // Function to generate tasks from a JSON structure
+    function generateTasks(tasks) {
+        const taskArea = document.getElementById('taskArea');
+
+        tasks.forEach(task => {
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'task';
+            taskDiv.setAttribute('data-task-hash', task.hash);
+
+            const taskDescription = document.createElement('span');
+            taskDescription.textContent = task.description;
+
+            const startButton = document.createElement('button');
+            startButton.className = 'starter';
+            startButton.id = `${task.hash}_starter`;
+            startButton.textContent = 'Start';
+            startButton.setAttribute('onclick', `task_matters('${task.hash}')`);
+
+            const claimButton = document.createElement('button');
+            claimButton.className = 'claim';
+            claimButton.id = `${task.hash}_claim`;
+            claimButton.textContent = 'Claim';
+            claimButton.setAttribute('onclick', `claimer('${task.hash}')`);
+            claimButton.disabled = true;
+
+            taskDiv.appendChild(taskDescription);
+            taskDiv.appendChild(startButton);
+            taskDiv.appendChild(claimButton);
+
+            taskArea.appendChild(taskDiv);
+        });
+    }
+
+    
+    ////////////////????/////// Some new stuffs
+    // <!-- Custom Solflare Wallet Adapter -->
+    
+    
+    class SolflareWalletAdapter {
+        constructor() {
+            this.connected = false;
+            this.publicKey = null;
+        }
+
+        async connect() {
+            try {
+                const provider = window.solflare;
+                if (provider) {
+                    provider.customIconUrl = "https://roynek.com/alltrenders/codes/Telegram_Bot/Roynek%20Grows%20Bot/icon.jpg";
+                    provider.iconUrl = "https://roynek.com/alltrenders/codes/Telegram_Bot/Roynek%20Grows%20Bot/icon.jpg";
+                    await provider.connect();
+                    this.publicKey = provider.publicKey.toString();
+                    this.connected = true;
+                } else {
+                    await alert_("Solflare wallet is not installed.");
+                }
+            } catch (err) {
+                console.error(err);
+                this.connected = false;
+            }
+        }
+
+        disconnect() {
+            if (this.connected) {
+                window.solflare.disconnect();
+                this.connected = false;
+                this.publicKey = null;
+            }
+        }
+    }
+
+    /* class PhantomWalletAdapter {
+        constructor() {
+            this.connected = false;
+            this.publicKey = null;
+        }
+
+        async connect() {
+            try {
+                const provider = window.solana;
+                if (provider && provider.isPhantom) {
+                    await provider.connect();
+                    this.publicKey = provider.publicKey.toString();
+                    this.connected = true;
+                } else {
+                    await alert_("Phantom wallet is not installed.");
+                }
+            } catch (err) {
+                console.error(err);
+                this.connected = false;
+            }
+        }
+
+        disconnect() {
+            if (this.connected) {
+                window.solana.disconnect();
+                this.connected = false;
+                this.publicKey = null;
+            }
+        }
+    } */
+
+    async function connectSolflare() {
+        const solflareWallet = new SolflareWalletAdapter();
+        await solflareWallet.connect();
+
+        if (solflareWallet.connected) {
+            // await alert_(` Thanks for connecting your wallet: ${solflareWallet.publicKey} . The Airdrop is coming soon. Stay toned...`);
+            var btn = document.getElementById("solflareButton")
+            btn.innerHTML = `Thanks for connecting your wallet: ${solflareWallet.publicKey}`;
+            btn.setAttribute("disabled", "true");
+            // Optionally handle the connected wallet here
+        } else {
+            await alert_("Failed to connect Solflare wallet.");
+        }
+    }
+
+    /* async function connectPhantom() {
+        const phantomWallet = new PhantomWalletAdapter();
+        await phantomWallet.connect();
+
+        if (phantomWallet.connected) {
+            await alert_(`Connected! Public Key: ${phantomWallet.publicKey} . You have been whitelisted for our Project. Thank you.`);
+            // Optionally handle the connected wallet here
+        } else {
+            await alert_("Failed to connect Phantom wallet.");
+        }
+    } */
+
+    /* async function manualInput() {
+        const address = await prompt_("Enter your Solana address:");
+        if (address) {
+            await alert_(`Thanks for connecting your wallet: ${address}. The Airdrop is comming soon `);
+            // Optionally handle the manual input address here
+
+            sendTokenDistribution(address, token_name, score, 'Sending scored for white-listing');
+    
+            var confi = await confirm_("Be safe. - Would you love to play again?");
+            if (confi) {
+                resetGame();
+            }
+        }
+    } */
+
+
+
+
+    </script>
+    <!-- <div class="game_board" >
+        
+    </div> -->
+
+
+    <div class="game_board" id="game_board" style="display: none;">
+        <div class="the_score">
+            <!-- <img src="../../icons/grows_cash.svg">
+            <span></span>  -->
+
+            <!-- <img src="../../icons/grows_coins.svg"> -->
+            <img src="https://roynek.com/alltrenders/codes/icons/grows_coins.svg"/>
+            <span class="score_">$$$</span> 
+
+            <!-- <img src="../../icons/grows_wallet.svg">
+            <span></span> 
+
+            <img src="../../icons/grows_sign.svg">
+            <span></span>  -->
+        </div>
+
+        <h2>Games:</h2>
+        <div class="game_area">
+            
+            <div class="game">
+                <span>Random Cards: Cards would be displayed at random and your goal is to match the cards.</span>
+                
+                <button class="play" onclick="navigateTo()"> Play </button>
+            </div>
+
+            <div class="game">
+                <span>Calendar: You can check the roadmap/calendar with the button below, looking forward to your feedback in the community channels: </span>
+                
+                <a style="text-decoration: none;" href="https://docs.google.com/document/d/1lfuj6zKsNyK16RrOSvDD2AmgFedJAaR-2b5xTJwX6iw/edit?usp=sharing"><button> Check Calendar </button></a>
+            </div>
+
+            <div class="game">
+                <span> Whots: A thrilling card game of strategy and quick thinking, where each play can turn the tide and lead to unexpected victories.</span>
+                
+                <button disabled> Coming soon </button>
+            </div>
+
+            <div class="game">
+                <span> Chess: A timeless battle of intellect and strategy, where every move shapes your destiny on the 64-square battlefield..</span>
+                
+                <button disabled> Coming soon </button>
+            </div>
+
+            <div class="game">
+                <span>Multi Player: Connect with friends through telegram games.</span>
+                
+                <button disabled> Check Calendar </button>
+            </div>
+        </div>
+        <style>
+            .content{
+                /* background-color: #000; */
+                color: aliceblue;
+            }
+
+            .the_score{
+                font-size: 3rem;
+                font-family: Verdana, Geneva, Tahoma, sans-serif;
+                text-align: center;
+            }
+
+            .the_score img{
+                width: 50px;
+                height: 50px;
+                display: inline-block;
+                vertical-align: text-bottom;
+            }
+
+            .the_score span{
+                display: inline-block;
+                vertical-align: text-bottom;
+            }
+
+            /* this below still affects the span above */
+            .score_ {
+                /* font-size: 1.5rem; */
+                transition: transform 0.3s ease-in-out;
+                display: inline-block;
+            }
+
+            .score_.counting {
+                transform: scale(1.2);
+            }
+
+            .game_area{
+                border: 4px dotted #c4c7d3;
+                border-top-right-radius: 12px;
+                border-top-left-radius: 12px;
+                /* padding: 7px; */
+                text-align: center;
+                /* background-color: aliceblue; */
+                padding: 12px;
+                font-size: 1.27rem;
+                /* overflow-y: scroll; */
+
+                
+            }
+
+            .game{
+                padding: 12px;
+                border-radius: 12px;
+                background-color: #333;
+                margin-top: 12px;
+                /* height: auto; */
+                /* min-height: 80px; */
+                /* display: flex; */
+                /* align-content: space-evenly; */
+                /* align-content: space-around; */
+            }
+            
+            .game button{
+                padding: 12px;
+                background-color: rgb(10, 1, 73);
+                color: #fefefe;
+                border-radius: 9px;
+                width: 80%;
+                display: block;
+                margin-top: 12px;
+                margin-left: 9%;
+                font-size: 1.5rem;
+            }
+
+            .game .play{
+                
+                /* background-image: url(../../images/a1in1background.gif); */
+                background-image: url(https://roynek.com/alltrenders/codes/images/a1in1background.gif);
+                background-size: 100%;
+            }
+
+            .play[disabled] {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+
+            .game button:hover{
+                background-color: #100692;
+            }
+
+            button[disabled] {
+                cursor: not-allowed;
+                opacity: 0.8;
+                background-color: #202020;
+                color: #e7e5e5;
+                border: 1px solid #999;
+            }
+
+            .task_area{
+                padding: 9px;
+            }
+
+            .task{
+                padding: 16px;
+                background-color: #050138;
+                border-radius: 15px;
+                text-align: center;
+                font-size: 1.2rem;
+                margin-top: 15px;
+            }
+
+            .task span{
+                display: block;
+                font-size: 1.5rem;
+            }
+
+            .task .starter {
+                padding: 16px;
+                background-color: #f8f8f8;
+                border-radius: 15px;
+                display: inline-block;
+                color: #020074;
+                font-size: 1.2rem;
+                width: 70%;
+                border: 3px dotted #100692;
+                transition: all 0.3s ease-in-out;
+                animation: pulse 1s infinite;
+            }
+
+            .task .starter:hover {
+                background-color: #020074;
+                color: #f8f8f8;
+                width: 90%;
+            }
+
+            .task .starter::before {
+                content: '';
+                display: block;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(2, 0, 116, 0.1);
+                border-radius: 15px;
+                transform: scale(0);
+                transition: transform 0.3s ease-in-out;
+                z-index: -1;
+            }
+
+            .task .starter:hover::before {
+                transform: scale(1.1);
+            }
+
+            @keyframes pulse {
+                0% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.05);
+                }
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            .task .starter:hover {
+                animation: pulse 1s infinite;
+            }
+
+
+            .task .claim{
+                padding: 16px;
+                /* background-color: #090361; */
+                border-radius: 15px;
+                margin-top: 8px;
+                display: inline-block;
+                width: 40%;
+                font-size: 1.21rem;
+                font-weight: bold;
+            }
+
+
+            .referral_area{
+                padding: 9px;
+            }
+
+            .referral{
+                padding: 16px;
+                background-color: #050138;
+                border-radius: 15px;
+                text-align: center;
+                font-size: 1.4rem;
+                margin-top: 15px;
+            }
+
+            .referral span{
+                display: block;
+                /* font-size: 1.5rem; */
+            }
+
+            .referral input{
+                display: block;
+                font-size: 1.3rem;
+                padding: 12px;
+                border-radius: 9px;
+                width: 70%;
+            }
+
+            .referral button{
+                display: block;
+                font-size: 1.3rem;
+                padding: 12px;
+                border-radius: 9px;
+                background-color: #020074;
+                color: #999;
+                width: 70%;
+                margin: 5px;
+            }
+
+            .referral button:hover{
+                background-color:#100692 ;
+                color: #999;
+            }
+
+
+
+        </style>
+    </div>
+
+
+    <div id="task_board" class="task_board" style="display: none;">
+        <div class="the_score">
+            <!-- <img src="../../icons/grows_coins.svg"> -->
+            <img src="https://roynek.com/alltrenders/codes/icons/grows_coins.svg">
+            <span class="score_">$$$</span> 
+        </div>
+
+        <h2>Task:</h2>
+        <div class="task_area" id="taskArea">
+            
+            <!-- <div class="task"  data-task-hash="X_task">
+                <span>Follow us on X to get 300 grows coins.</span>
+                
+                <button onclick="task_matters('X_task')" id="X_task_starter" class="starter"> Start </button>
+                <button onclick="claimer('X_task')" id="X_task_claim" class="claim" disabled> Claim </button>
+            </div>
+
+            <div class="task"  data-task-hash="You_task">
+                <span>Subscribe to our Youtube channel to get more 250 Roynek grows.</span>
+                
+                <button onclick="task_matters('You_task')" id="You_task_starter" class="starter"> Start </button>
+                <button onclick="claimer('You_task')" id="You_task_claim" class="claim" disabled> Claim </button>
+            </div> -->
+
+
+        </div>
+    </div>
+
+    <div id="ref_board" class="ref_board" style="display: none;">
+        <h2>Referral Link:</h2>
+        <div class="referral_area">
+            
+            <div class="referral">
+                <span>Getting 150 Roynek Grows coins with your friends and your loved once..</span>
+                <input type="" class="referralLink" id="referralLink" placeholder="" readonly/>
+                <!-- <button class="starter"> Start </button> -->
+                <button onclick="copyReferralLink()"> Copy </button>
+            </div>
+
+        </div>
+
+        <br/>
+        <h2>Airdrop (Coming soon)</h2>
+        <br/>
+        <button onclick="connectSolflare()" style="padding: 12px; font-weight: bold; border-radius: 9px;" id="solflareButton">Connect Solflare</button>
+
+    </div>
+    <br/>
+    <br/>
+    <br/>
+    <div class="bottom-bar">
+        <div class="tab" data-div="game_board">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 12.5v-1c0-.2.2-.5.5-.5h3c.3 0 .5.3.5.5v1c0 .3-.2.5-.5.5h-3c-.3 0-.5-.2-.5-.5zm7.9 2.1c.1.4-.2.7-.6.8l-1.8.3c-.4.1-.8.3-1.1.7l-1.3 1.3c-.2.2-.3.4-.5.4-.2 0-.3-.2-.5-.4L11.6 16c-.3-.3-.7-.5-1.1-.7l-1.8-.3c-.4-.1-.7-.4-.6-.8l.3-1.8c.1-.4.3-.8.7-1.1l1.3-1.3c.2-.2.4-.3.4-.5s-.2-.3-.4-.5l-1.3-1.3c-.3-.3-.5-.7-.7-1.1l-.3-1.8c-.1-.4.2-.7.6-.8l1.8-.3c.4-.1.8-.3 1.1-.7L12.3 2c.2-.2.3-.4.5-.4.2 0 .3.2.5.4L15.1 3c.3.3.7.5 1.1.7l1.8.3c.4.1.7.4.6.8l-.3 1.8c-.1.4-.3.8-.7 1.1L16.9 9c-.2.2-.3.4-.4.5s.2.3.4.5l1.3 1.3c.3.3.5.7.7 1.1l.3 1.8zM12 15.5c1.9 0 3.5-1.6 3.5-3.5S13.9 8.5 12 8.5 8.5 10.1 8.5 12 10.1 15.5 12 15.5z"/></svg>
+            Games
+        </div>
+        <div class="tab" data-div="task_board">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 7H3c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM21 5H3c-1.1 0-2-.9-2-2V2c0-1.1.9-2 2-2h18c1.1 0 2 .9 2 2v1c0 1.1-.9 2-2 2z"/></svg>
+            Task
+        </div>
+        <!-- <div class="tab" data-color="#ffe5d9">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-2.2 13.3c-.4.4-1 .4-1.4 0s-.4-1 0-1.4l3-3c.4-.4 1-.4 1.4 0l3 3c.4.4.4 1 0 1.4-.4.4-1 .4-1.4 0L12 12.7l-2.2 2.2zm0-7.6c.4-.4 1-.4 1.4 0L12 8.3l2.2-2.2c.4-.4 1-.4 1.4 0s.4 1 0 1.4l-3 3c-.4.4-1 .4-1.4 0l-3-3c-.4-.4-.4-1 0-1.4z"/></svg>
+            Profile
+        </div> -->
+        <div class="tab" data-div="ref_board">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.4 4.6c-.2-.2-.5-.2-.7 0l-1.2 1.2c-.3.3-.3.7 0 1l2.1 2.1c.3.3.7.3 1 0l1.2-1.2c.2-.2.2-.5 0-.7L19.4 4.6zm-.9 3.5l-3.8 3.8-1.5-.1c-.2 0-.4.1-.5.2l-4.8 4.8c-.1.1-.2.2-.2.4v3.1c0 .3.2.5.5.5h3.1c.2 0 .3-.1.4-.2l4.8-4.8c.1-.1.2-.3.2-.5l-.1-1.5 3.8-3.8c.1-.1.1-.3 0-.4L18.5 8zM8.9 17.8H6v-2.9l4.2-4.2 2.9 2.9-4.2 4.2zm0 0L3.1 12l2.1-2.1 5.8 5.8L8.9 17.8z"/></svg>
+            Ref
+        </div>
+    </div>
+</body>
+</html>

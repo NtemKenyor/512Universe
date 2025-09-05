@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>512Gamers - Sonic Gaming Hub</title>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script> -->
+   <script src="assets/js/libs/ethers.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-bg: #0a0a0f;
+      --secondary-bg: #111118;
+      --accent-purple: #8B5CF6;
+      --accent-cyan: #06B6D4;
+      --accent-pink: #EC4899;
+      --accent-gold: #F59E0B;
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --text-primary: #ffffff;
+      --text-secondary: #a3a3a3;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+    }
+
+    body {
+      background: var(--primary-bg);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(236, 72, 153, 0.2) 0%, transparent 50%),
+        linear-gradient(135deg, #0a0a0f 0%, #111118 50%, #0a0a0f 100%);
+      animation: backgroundShift 20s ease-in-out infinite;
+      z-index: -2;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(139, 92, 246, 0.1) 2px, transparent 2px),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+      background-size: 60px 60px, 40px 40px;
+      animation: floatDots 30s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes backgroundShift {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    @keyframes floatDots {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-60px); }
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      padding: 12px 20px;
+      border-radius: 50px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin: 60px 0 40px;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.5; }
+      50% { transform: translateX(-50%) scale(1.1); opacity: 0.8; }
+    }
+
+    .header h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan), var(--accent-pink));
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientFlow 3s ease-in-out infinite;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    @keyframes gradientFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .header p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      position: relative;
+      z-index: 2;
+    }
+
+    .loading, .error-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 50vh;
+      gap: 20px;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 3px solid var(--glass-border);
+      border-top: 3px solid var(--accent-purple);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      padding: 24px;
+      margin: 20px 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .wallet-info {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(20px);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .wallet-info > div {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .wallet-info strong {
+      color: var(--accent-cyan);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .access-status {
+      padding: 16px 24px;
+      border-radius: 50px;
+      text-align: center;
+      font-weight: 600;
+      margin: 20px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .access-status::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .access-granted {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+
+    .access-needed {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.2));
+      border: 1px solid var(--warning);
+      color: var(--warning);
+    }
+
+    .games-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 30px;
+      margin: 40px 0;
+    }
+
+    .game-section {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 30px;
+      backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan), var(--accent-pink));
+      background-size: 300% 100%;
+      animation: gradientSlide 3s ease-in-out infinite;
+    }
+
+    @keyframes gradientSlide {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .game-section h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-description {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 24px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      border-left: 3px solid var(--accent-gold);
+    }
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 0;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      group: hover;
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .game-card:hover::before {
+      opacity: 1;
+    }
+
+    .game-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(139, 92, 246, 0.5);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 
+        0 20px 40px rgba(139, 92, 246, 0.2),
+        0 0 0 1px rgba(139, 92, 246, 0.3);
+    }
+
+    .game-card.locked {
+      opacity: 0.6;
+      background: rgba(255, 255, 255, 0.02);
+      cursor: not-allowed;
+    }
+
+    .game-card.locked:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: rgba(245, 158, 11, 0.5);
+    }
+
+    .game-card.locked::before {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(239, 68, 68, 0.1));
+    }
+
+    .game-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .game-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .game-description {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .game-tags {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .game-status {
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .free-game {
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: white;
+    }
+
+    .paid-game {
+      background: linear-gradient(135deg, var(--accent-purple), #7C3AED);
+      color: white;
+    }
+
+    .coming-soon {
+      background: linear-gradient(135deg, #6B7280, #4B5563);
+      color: white;
+    }
+
+    .locked-icon {
+      font-size: 18px;
+      color: var(--warning);
+      opacity: 0.8;
+    }
+
+    .pay-access-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-gold), #D97706);
+      border: none;
+      border-radius: 50px;
+      padding: 16px 24px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pay-access-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .pay-access-btn:hover::before {
+      left: 100%;
+    }
+
+    .pay-access-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(245, 158, 11, 0.4);
+    }
+
+    .pay-access-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .status-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 24px;
+      margin: 20px 0;
+      backdrop-filter: blur(20px);
+      text-align: center;
+    }
+
+    .status-card.error {
+      border-color: var(--error);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .status-card.success {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .status-card h3 {
+      margin-bottom: 12px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    /* Game iframe styles */
+    .iframe-container {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 2000;
+      backdrop-filter: blur(10px);
+    }
+
+    .iframe-header {
+      background: var(--glass-bg);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+    }
+
+    .iframe-header h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 18px;
+      color: var(--text-primary);
+    }
+
+    .close-btn {
+      background: linear-gradient(135deg, var(--error), #DC2626);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .close-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    .iframe-content {
+      height: calc(100vh - 80px);
+      width: 100%;
+    }
+
+    .iframe-content iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 0;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      .games-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .game-section {
+        padding: 20px;
+      }
+
+      .back-btn {
+        position: static;
+        margin-bottom: 20px;
+        align-self: flex-start;
+      }
+
+      .wallet-info {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .games-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .game-section {
+        padding: 16px;
+      }
+
+      .game-card {
+        padding: 16px;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--secondary-bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #7C3AED, #0891B2);
+    }
+
+    /* Loading animations */
+    .loading {
+      display: none;
+    }
+
+    .loading.show {
+      display: flex;
+    }
+
+    /* Floating elements animation */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="back-btn" onclick="goToIndex()">
+      <span>←</span> Back to Home
+    </button>
+
+    <div class="header">
+      <h1>512Gamers</h1>
+      <p>Experience the future of blockchain gaming on Sonic</p>
+    </div>
+
+    <div id="loadingState" class="loading">
+      <div class="spinner"></div>
+      <p style="margin-top: 16px; font-size: 18px; font-weight: 500;">Connecting to your wallet...</p>
+    </div>
+
+    <div id="noWalletState" style="display: none;">
+      <div class="status-card error">
+        <h3>🔌 No Wallet Connected</h3>
+        <p style="margin: 16px 0;">Connect your wallet to access the gaming universe</p>
+        <button class="pay-access-btn" onclick="goToIndex()" style="max-width: 300px; margin: 16px auto 0;">
+          Connect Wallet
+        </button>
+      </div>
+    </div>
+
+    <div id="gamesState" style="display: none;">
+      <div class="wallet-info" id="walletInfo"></div>
+      <div class="access-status" id="accessStatus"></div>
+
+      <div class="games-container">
+        <!-- Free Games Section -->
+        <div class="game-section">
+          <h3>🆓 Free Arena</h3>
+          <div class="section-description">
+            Jump right in! No payment required - start your gaming journey here.
+          </div>
+          
+          <div class="game-card" onclick="playGame('mr_aquatic', 'free')">
+            <div class="game-content">
+              <div class="game-title">
+                🪐 Mr. Aquatic
+                <div class="game-tags">
+                  <span class="game-status free-game">Free</span>
+                </div>
+              </div>
+              <div class="game-description">
+                Explore the mystical depths of Sonic planet and discover its hidden secrets in this immersive underwater adventure.
+              </div>
+            </div>
+          </div>
+
+          <div class="game-card" onclick="playGame('space_explorer', 'free')">
+            <div class="game-content">
+              <div class="game-title">
+                🚀 Space Explorer
+                <div class="game-tags">
+                  <span class="game-status free-game">Free</span>
+                </div>
+              </div>
+              <div class="game-description">
+                Navigate through the vast cosmos, collect cosmic treasures, and build your interstellar empire.
+              </div>
+            </div>
+          </div>
+
+          <div class="game-card" onclick="playGame('tap_lengend', 'free')">
+            <div class="game-content">
+              <div class="game-title">
+                👆 Tap Legend
+                <div class="game-tags">
+                  <span class="game-status free-game">Free</span>
+                </div>
+              </div>
+              <div class="game-description">
+                Master the ancient art of tapping in this addictive skill-based challenge that tests your reflexes.
+              </div>
+            </div>
+          </div>
+
+          <div class="game-card locked">
+            <div class="game-content">
+              <div class="game-title">
+                🔤 Words Creator
+                <div class="game-tags">
+                  <span class="game-status coming-soon">Coming Soon</span>
+                </div>
+              </div>
+              <div class="game-description">
+                Challenge your vocabulary in this innovative word-finding matrix game with blockchain rewards.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Premium Games Section -->
+        <div class="game-section">
+          <h3>💎 Premium Vault</h3>
+          <div class="section-description">
+            Unlock exclusive premium experiences with 24-hour all-access pass for just 0.0001 STT
+          </div>
+
+          <div class="game-card" id="chess-card" onclick="playGame('chess_sonic', 'paid')">
+            <div class="game-content">
+              <div class="game-title">
+                ♟️ Chess Sonic
+                <div class="game-tags">
+                  <span class="game-status paid-game">Premium</span>
+                  <span class="locked-icon" id="chess-lock">🔒</span>
+                </div>
+              </div>
+              <div class="game-description">
+                Experience strategic chess battles enhanced with blockchain technology and Sonic's cutting-edge infrastructure.
+              </div>
+            </div>
+          </div>
+
+          <div class="game-card locked">
+            <div class="game-content">
+              <div class="game-title">
+                💰 Bet King
+                <div class="game-tags">
+                  <span class="game-status coming-soon">Coming Soon</span>
+                </div>
+              </div>
+              <div class="game-description">
+                Join prediction pools for Ethereum price movements and compete with traders worldwide for rewards.
+              </div>
+            </div>
+          </div>
+
+          <div class="game-card locked">
+            <div class="game-content">
+              <div class="game-title">
+                ⚔️ 512 Wars
+                <div class="game-tags">
+                  <span class="game-status coming-soon">Coming Soon</span>
+                </div>
+              </div>
+              <div class="game-description">
+                Epic strategic battles featuring 64 unique pieces, advanced AI, and a global competitive leaderboard.
+              </div>
+            </div>
+          </div>
+
+          <div class="game-card locked">
+            <div class="game-content">
+              <div class="game-title">
+                🏢 Entrepreneur Minds
+                <div class="game-tags">
+                  <span class="game-status coming-soon">Coming Soon</span>
+                </div>
+              </div>
+              <div class="game-description">
+                Build business empires in this Web3 board game where strategy meets blockchain innovation.
+              </div>
+            </div>
+          </div>
+
+          <button class="pay-access-btn" id="payAccessBtn" onclick="payForAccess()" style="display: none;">
+            🔓 Unlock Premium Vault - 0.0001 STT (24 Hours)
+          </button>
+        </div>
+      </div>
+
+      <div id="transactionStatus" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- Game iframe container -->
+  <div id="gameContainer" class="iframe-container">
+    <div class="iframe-header">
+      <h3 id="gameTitle">Game</h3>
+      <button class="close-btn" onclick="closeGame()">✕ Close Game</button>
+    </div>
+    <div class="iframe-content">
+      <iframe id="gameFrame" src=""></iframe>
+    </div>
+  </div>
+
+  <!-- <script>
+    const SOMNIA_CHAIN_ID = 50312n;
+    const ACCESS_FEE_STT = "0.0001";
+    const COMPANY_ADDRESS = "0xcB00fB1Bc16F9e5fEB3bB817d8C4D456d60Aa58C"; // Replace with your company address
+    const ACCESS_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+    let provider = null;
+    let signer = null;
+    let userAddress = null;
+    let currentConnection = null;
+    let hasPaidAccess = false;
+
+    // Game configurations
+    const GAMES = {
+      // Free games
+      mr_aquatic: { path: 'mr_aquatic/index.html', title: '🪐 Mr Aquatic', type: 'free' },
+      // somnia_planet: { path: 'somnia_planet/index.html', title: '🪐 Somnia Planet', type: 'free' },
+      space_explorer: { path: 'space_explorer/index.html', title: '🚀 Space Explorer', type: 'free' },
+      tap_lengend: { path: 'Roynek Grows Bot/encrypted_index.php?tele_id=-1&hash=1000&username=anonymous', title: '👆 Tap Legend', type: 'free' },
+      
+      // Paid games
+      //TODO: this userAddress returns null but I want to return the original wallet address of the user so that it is added to this church.
+      // chess_somnia: { path: 'chess_somnia/index.html?walletAddress='+userAddress, title: '♟️ Chess Somnia', type: 'paid' }
+      // Paid games
+      chess_somnia: { 
+        get path() {
+          return `chess_somnia/index.html?walletAddress=${encodeURIComponent(userAddress || '')}`;
+        },
+        title: '♟️ Chess Somnia', 
+        type: 'paid' 
+      }
+
+    };
+
+    // Connection state management
+    const ConnectionState = {
+      load: () => {
+        const data = sessionStorage.getItem('wallet_connection');
+        return data ? JSON.parse(data) : null;
+      },
+      
+      clear: () => {
+        sessionStorage.removeItem('wallet_connection');
+      },
+      
+      isValid: () => {
+        const data = ConnectionState.load();
+        if (!data) return false;
+        
+        const maxAge = 24 * 60 * 60 * 1000;
+        return (Date.now() - data.timestamp) < maxAge;
+      }
+    };
+
+    // Access tracking
+    const AccessTracker = {
+      save: (txHash, timestamp) => {
+        const accessData = { txHash, timestamp, address: userAddress };
+        localStorage.setItem(`somnia_access_${userAddress}`, JSON.stringify(accessData));
+      },
+      
+      load: () => {
+        if (!userAddress) return null;
+        const data = localStorage.getItem(`somnia_access_${userAddress}`);
+        return data ? JSON.parse(data) : null;
+      },
+      
+      isValid: () => {
+        const data = AccessTracker.load();
+        if (!data) return false;
+        
+        return (Date.now() - data.timestamp) < ACCESS_DURATION;
+      },
+      
+      clear: () => {
+        if (userAddress) {
+          localStorage.removeItem(`somnia_access_${userAddress}`);
+        }
+      }
+    };
+
+    function showState(stateId) {
+      const states = ['loadingState', 'noWalletState', 'gamesState'];
+      states.forEach(id => {
+        const element = document.getElementById(id);
+        if (id === stateId) {
+          element.style.display = id === 'loadingState' ? 'flex' : 'block';
+          if (id === 'loadingState') {
+            element.classList.add('show');
+          }
+        } else {
+          element.style.display = 'none';
+          if (element.classList.contains('show')) {
+            element.classList.remove('show');
+          }
+        }
+      });
+    }
+
+    function goToIndex() {
+      window.location.href = 'index.html';
+    }
+
+    async function waitForWalletInjection(maxWait = 5000) {
+      return new Promise((resolve) => {
+        let attempts = 0;
+        const maxAttempts = maxWait / 100;
+        
+        const checkForWallet = () => {
+          if (window.ethereum || attempts >= maxAttempts) {
+            resolve();
+          } else {
+            attempts++;
+            setTimeout(checkForWallet, 100);
+          }
+        };
+        
+        checkForWallet();
+      });
+    }
+
+    async function initializeWallet() {
+      try {
+        showState('loadingState');
+
+        if (!ConnectionState.isValid()) {
+          console.log('No valid connection state found');
+          showState('noWalletState');
+          return;
+        }
+
+        currentConnection = ConnectionState.load();
+        console.log('Loaded connection state:', currentConnection);
+        
+        await waitForWalletInjection(5000);
+
+        let walletProvider = null;
+        
+        console.log('Looking for wallet type:', currentConnection.walletType);
+        
+        if (window.ethereum?.providers && Array.isArray(window.ethereum.providers)) {
+          console.log('Multiple providers found:', window.ethereum.providers.length);
+          
+          if (currentConnection.walletType === 'metamask') {
+            walletProvider = window.ethereum.providers.find(p => 
+              p.isMetaMask && !p.isNightly && !p.isCoinbaseWallet
+            );
+          } else if (currentConnection.walletType === 'nightly') {
+            walletProvider = window.ethereum.providers.find(p => p.isNightly);
+          }
+        } else if (window.ethereum) {
+          console.log('Single provider found');
+          
+          if (currentConnection.walletType === 'metamask' && window.ethereum.isMetaMask && !window.ethereum.isNightly) {
+            walletProvider = window.ethereum;
+          } else if (currentConnection.walletType === 'nightly' && window.ethereum.isNightly) {
+            walletProvider = window.ethereum;
+          }
+        }
+        
+        if (!walletProvider && currentConnection.walletType === 'metamask' && window.MetaMask) {
+          walletProvider = window.MetaMask;
+        } else if (!walletProvider && currentConnection.walletType === 'nightly' && window.nightly?.ethereum) {
+          walletProvider = window.nightly.ethereum;
+        }
+
+        console.log('Selected provider:', walletProvider);
+
+        if (!walletProvider) {
+          throw new Error(`${currentConnection.walletType} wallet not found. Please reconnect.`);
+        }
+
+        provider = new ethers.BrowserProvider(walletProvider);
+        
+        let accounts;
+        try {
+          accounts = await provider.send("eth_accounts", []);
+          
+          if (!accounts || accounts.length === 0) {
+            accounts = await provider.send("eth_requestAccounts", []);
+          }
+        } catch (accountError) {
+          console.log("Fallback: requesting accounts directly");
+          accounts = await provider.send("eth_requestAccounts", []);
+        }
+        
+        if (!accounts || accounts.length === 0) {
+          throw new Error("Wallet is not connected. Please reconnect.");
+        }
+
+        userAddress = accounts[0];
+        console.log('Connected to address:', userAddress);
+        
+        if (userAddress.toLowerCase() !== currentConnection.address.toLowerCase()) {
+          console.warn("Address mismatch, updating connection");
+          currentConnection.address = userAddress;
+        }
+
+        const network = await provider.getNetwork();
+        if (network.chainId !== SOMNIA_CHAIN_ID) {
+          alert("Please switch to Somnia Testnet (Chain ID 50312) to play games.");
+          return;
+        }
+
+        signer = await provider.getSigner();
+        
+        // Check access status
+        await checkAccessStatus();
+        
+        updateUI();
+        showState('gamesState');
+
+      } catch (error) {
+        console.error('Failed to initialize wallet:', error);
+        
+        const statusDiv = document.getElementById('transactionStatus') || createStatusDiv();
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'status-card error';
+        statusDiv.innerHTML = `
+          <h3>⚠️ Connection Error</h3>
+          <p style="margin: 12px 0;">${error.message}</p>
+          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <button onclick="initializeWallet()" class="pay-access-btn" style="max-width: 150px;">Retry</button>
+            <button onclick="ConnectionState.clear(); showState('noWalletState');" class="pay-access-btn" style="max-width: 150px; background: linear-gradient(135deg, #6B7280, #4B5563);">Reset</button>
+          </div>
+        `;
+        
+        if (!document.getElementById('transactionStatus')) {
+          document.querySelector('.container').appendChild(statusDiv);
+        }
+      }
+    }
+
+    function createStatusDiv() {
+      const div = document.createElement('div');
+      div.id = 'transactionStatus';
+      return div;
+    }
+
+    async function checkAccessStatus() {
+      // First check local storage
+      if (AccessTracker.isValid()) {
+        hasPaidAccess = true;
+        return;
+      }
+
+      // Then check blockchain for recent transactions
+      try {
+        const currentBlock = await provider.getBlockNumber();
+        const blocksToCheck = Math.min(10000, Math.floor(ACCESS_DURATION / 12000)); // Estimate blocks in 24 hours
+        
+        // Check recent transactions to company address
+        for (let i = 0; i < 50; i++) { // Check last 50 blocks for efficiency
+          try {
+            const blockNumber = currentBlock - i;
+            const block = await provider.getBlock(blockNumber, true);
+            
+            if (!block || !block.transactions) continue;
+            
+            for (const tx of block.transactions) {
+              if (tx.from?.toLowerCase() === userAddress.toLowerCase() && 
+                  tx.to?.toLowerCase() === COMPANY_ADDRESS.toLowerCase() &&
+                  tx.value && parseFloat(ethers.formatEther(tx.value)) >= parseFloat(ACCESS_FEE_STT)) {
+                
+                // Found a valid payment transaction
+                const txTime = block.timestamp * 1000;
+                if ((Date.now() - txTime) < ACCESS_DURATION) {
+                  hasPaidAccess = true;
+                  AccessTracker.save(tx.hash, txTime);
+                  return;
+                }
+              }
+            }
+          } catch (blockError) {
+            console.log(`Error checking block ${currentBlock - i}:`, blockError);
+          }
+        }
+      } catch (error) {
+        console.log('Error checking blockchain access:', error);
+      }
+      
+      hasPaidAccess = false;
+    }
+
+    function updateUI() {
+      // Update wallet info
+      const walletInfo = document.getElementById('walletInfo');
+      walletInfo.innerHTML = `
+        <div>
+          <strong>Wallet Type</strong>
+          <div style="font-size: 16px; color: var(--text-primary); text-transform: capitalize;">${currentConnection.walletType}</div>
+        </div>
+        <div>
+          <strong>Address</strong>
+          <div style="font-size: 16px; color: var(--text-primary); font-family: monospace;">${userAddress.slice(0, 8)}...${userAddress.slice(-6)}</div>
+        </div>
+        <div>
+          <strong>Network</strong>
+          <div style="font-size: 16px; color: var(--accent-cyan);">Somnia Testnet</div>
+        </div>
+      `;
+
+      // Update access status
+      const accessStatus = document.getElementById('accessStatus');
+      const payBtn = document.getElementById('payAccessBtn');
+      
+      if (hasPaidAccess) {
+        const accessData = AccessTracker.load();
+        const timeLeft = accessData ? Math.max(0, ACCESS_DURATION - (Date.now() - accessData.timestamp)) : 0;
+        const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        
+        accessStatus.className = 'access-status access-granted';
+        accessStatus.innerHTML = `🔓 Premium Vault Unlocked - ${hoursLeft}h ${minutesLeft}m remaining`;
+        payBtn.style.display = 'none';
+        
+        // Remove lock icons
+        document.querySelectorAll('.locked-icon').forEach(icon => {
+          if (icon.id === 'chess-lock') {
+            icon.style.display = 'none';
+          }
+        });
+      } else {
+        accessStatus.className = 'access-status access-needed';
+        accessStatus.innerHTML = '🔒 Premium Vault Locked - Unlock to access exclusive games';
+        payBtn.style.display = 'block';
+        
+        // Show lock icons
+        document.querySelectorAll('.locked-icon').forEach(icon => {
+          if (icon.id === 'chess-lock') {
+            icon.style.display = 'inline';
+          }
+        });
+      }
+    }
+
+    function playGame(gameId, gameType) {
+      if (gameType === 'paid' && !hasPaidAccess) {
+        // Create a nice modal-style alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'status-card error';
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '50%';
+        alertDiv.style.left = '50%';
+        alertDiv.style.transform = 'translate(-50%, -50%)';
+        alertDiv.style.zIndex = '1500';
+        alertDiv.style.maxWidth = '400px';
+        alertDiv.innerHTML = `
+          <h3>🔒 Premium Access Required</h3>
+          <p style="margin: 16px 0;">Unlock the Premium Vault to access this exclusive game!</p>
+          <button onclick="this.parentElement.remove()" class="pay-access-btn" style="max-width: 200px;">Got it!</button>
+        `;
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+          if (alertDiv.parentElement) {
+            alertDiv.remove();
+          }
+        }, 5000);
+        return;
+      }
+
+      const game = GAMES[gameId];
+      if (!game) {
+        alert('Game not found!');
+        return;
+      }
+
+      // Set up the iframe with smooth transition
+      const gameContainer = document.getElementById('gameContainer');
+      document.getElementById('gameTitle').textContent = game.title;
+      document.getElementById('gameFrame').src = game.path;
+      
+      // Smooth fade in
+      gameContainer.style.display = 'block';
+      gameContainer.style.opacity = '0';
+      setTimeout(() => {
+        gameContainer.style.transition = 'opacity 0.3s ease';
+        gameContainer.style.opacity = '1';
+      }, 10);
+      
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeGame() {
+      const gameContainer = document.getElementById('gameContainer');
+      gameContainer.style.transition = 'opacity 0.3s ease';
+      gameContainer.style.opacity = '0';
+      
+      setTimeout(() => {
+        gameContainer.style.display = 'none';
+        document.getElementById('gameFrame').src = '';
+        document.body.style.overflow = 'auto';
+      }, 300);
+    }
+
+    async function payForAccess() {
+      const payBtn = document.getElementById('payAccessBtn');
+      const statusDiv = document.getElementById('transactionStatus') || createStatusDiv();
+      
+      try {
+        payBtn.disabled = true;
+        payBtn.textContent = 'Processing Payment...';
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'status-card';
+        statusDiv.innerHTML = `
+          <div class="spinner"></div>
+          <p style="margin-top: 16px;">Preparing your transaction...</p>
+        `;
+
+        if (!document.getElementById('transactionStatus')) {
+          document.querySelector('.container').appendChild(statusDiv);
+        }
+
+        const balance = await provider.getBalance(userAddress);
+        const feeWei = ethers.parseEther(ACCESS_FEE_STT);
+        
+        if (balance < feeWei) {
+          throw new Error(`Insufficient balance. Required: ${ACCESS_FEE_STT} STT, Available: ${ethers.formatEther(balance)} STT`);
+        }
+
+        const gasEstimate = await provider.estimateGas({
+          to: COMPANY_ADDRESS,
+          value: feeWei,
+          from: userAddress
+        });
+
+        statusDiv.innerHTML = `
+          <div class="spinner"></div>
+          <p style="margin-top: 16px;">Sending transaction to blockchain...</p>
+        `;
+
+        const tx = await signer.sendTransaction({
+          to: COMPANY_ADDRESS,
+          value: feeWei,
+          gasLimit: gasEstimate * 120n / 100n
+        });
+
+        statusDiv.innerHTML = `
+          <div class="spinner"></div>
+          <p style="margin-top: 16px;">Transaction sent! Waiting for confirmation...</p>
+          <p style="font-size: 12px; word-break: break-all; margin-top: 8px; opacity: 0.7;">TX: ${tx.hash}</p>
+        `;
+
+        const receipt = await tx.wait();
+
+        if (receipt.status === 1) {
+          hasPaidAccess = true;
+          AccessTracker.save(tx.hash, Date.now());
+          
+          statusDiv.className = 'status-card success';
+          statusDiv.innerHTML = `
+            <h3>🎉 Payment Successful!</h3>
+            <p style="margin: 16px 0;">Welcome to the Premium Vault! You now have 24-hour access to all exclusive games.</p>
+            <p style="font-size: 12px; word-break: break-all; opacity: 0.7;">TX: ${tx.hash}</p>
+          `;
+          
+          updateUI();
+          
+          setTimeout(() => {
+            statusDiv.style.display = 'none';
+          }, 8000);
+        } else {
+          throw new Error('Transaction failed');
+        }
+
+      } catch (error) {
+        console.error('Payment error:', error);
+        
+        statusDiv.className = 'status-card error';
+        statusDiv.innerHTML = `
+          <h3>💳 Payment Failed</h3>
+          <p style="margin: 16px 0;">${error.message}</p>
+          <button onclick="document.getElementById('transactionStatus').style.display = 'none'" class="pay-access-btn" style="max-width: 200px;">Close</button>
+        `;
+      } finally {
+        payBtn.disabled = false;
+        payBtn.textContent = '🔓 Unlock Premium Vault - 0.0001 STT (24 Hours)';
+      }
+    }
+
+    // Listen for account/network changes
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length === 0) {
+          ConnectionState.clear();
+          showState('noWalletState');
+        } else {
+          window.location.reload();
+        }
+      });
+
+      window.ethereum.on('chainChanged', (chainId) => {
+        window.location.reload();
+      });
+    }
+
+    // Keyboard shortcut to close game
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeGame();
+      }
+    });
+
+    // Initialize when page loads
+    window.addEventListener('load', () => {
+      console.log('=== 512GAMERS WALLET DEBUG ===');
+      console.log('window.ethereum:', window.ethereum);
+      console.log('Connection state:', ConnectionState.load());
+      console.log('=============================');
+      
+      initializeWallet();
+    });
+
+    // Add some interactive effects
+    document.addEventListener('DOMContentLoaded', () => {
+      // Add floating animation to game cards
+      const gameCards = document.querySelectorAll('.game-card');
+      gameCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('floating');
+      });
+
+      // Add subtle parallax effect to background
+      let ticking = false;
+      
+      function updateParallax() {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = document.querySelectorAll('.header::before');
+        
+        parallaxElements.forEach(element => {
+          const speed = 0.5;
+          element.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+        
+        ticking = false;
+      }
+
+      function requestTick() {
+        if (!ticking) {
+          requestAnimationFrame(updateParallax);
+          ticking = true;
+        }
+      }
+
+      window.addEventListener('scroll', requestTick);
+    });
+  </script>
+ -->
+
+
+
+ <script>
+  // Sonic network configuration
+  const SONIC_NETWORKS = {
+      mainnet: {
+          chainId: 146n,
+          chainName: "Sonic",
+          rpcUrl: "https://rpc.soniclabs.com",
+          explorerUrl: "https://sonicscan.org",
+          currencySymbol: "S"
+      },
+      testnet: {
+          chainId: 14601n,
+          chainName: "Sonic Testnet",
+          rpcUrl: "https://rpc.testnet.soniclabs.com",
+          explorerUrl: "https://testnet.sonicscan.org",
+          currencySymbol: "S",
+          faucet: "https://testnet.soniclabs.com/account"
+      }
+  };
+
+  // Determine which network to use based on URL parameter
+  function getTargetNetwork() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const networkParam = urlParams.get('network');
+      
+      return networkParam === 'testnet' ? SONIC_NETWORKS.testnet : SONIC_NETWORKS.mainnet;
+  }
+
+  const TARGET_NETWORK = getTargetNetwork();
+  const ACCESS_FEE_S = TARGET_NETWORK === SONIC_NETWORKS.testnet ? "0.0001" : "0.01";
+  const COMPANY_ADDRESS = "0xcB00fB1Bc16F9e5fEB3bB817d8C4D456d60Aa58C"; // Replace with your company address
+  const ACCESS_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+  let provider = null;
+  let signer = null;
+  let userAddress = null;
+  let currentConnection = null;
+  let hasPaidAccess = false;
+
+  // Game configurations
+  const GAMES = {
+    // Free games
+    mr_aquatic: { path: 'mr_aquatic/index.html', title: '🪐 Mr Aquatic', type: 'free' },
+    space_explorer: { path: 'space_explorer/index.html', title: '🚀 Space Explorer', type: 'free' },
+    tap_lengend: { path: 'Roynek Grows Bot/encrypted_index.php?tele_id=-1&hash=1000&username=anonymous', title: '👆 Tap Legend', type: 'free' },
+    
+    // Paid games
+    chess_sonic: { 
+      get path() {
+        return `chess_sonic/index.html?walletAddress=${encodeURIComponent(userAddress || '')}`;
+      },
+      title: '♟️ Chess Sonic', 
+      type: 'paid' 
+    }
+  };
+
+  // Connection state management
+  const ConnectionState = {
+    load: () => {
+      const data = sessionStorage.getItem('wallet_connection');
+      return data ? JSON.parse(data) : null;
+    },
+    
+    clear: () => {
+      sessionStorage.removeItem('wallet_connection');
+    },
+    
+    isValid: () => {
+      const data = ConnectionState.load();
+      if (!data) return false;
+      
+      const maxAge = 24 * 60 * 60 * 1000;
+      return (Date.now() - data.timestamp) < maxAge;
+    }
+  };
+
+  // Access tracking
+  const AccessTracker = {
+    save: (txHash, timestamp) => {
+      const accessData = { txHash, timestamp, address: userAddress };
+      localStorage.setItem(`sonic_access_${userAddress}`, JSON.stringify(accessData));
+    },
+    
+    load: () => {
+      if (!userAddress) return null;
+      const data = localStorage.getItem(`sonic_access_${userAddress}`);
+      return data ? JSON.parse(data) : null;
+    },
+    
+    isValid: () => {
+      const data = AccessTracker.load();
+      if (!data) return false;
+      
+      return (Date.now() - data.timestamp) < ACCESS_DURATION;
+    },
+    
+    clear: () => {
+      if (userAddress) {
+        localStorage.removeItem(`sonic_access_${userAddress}`);
+      }
+    }
+  };
+
+  function showState(stateId) {
+    const states = ['loadingState', 'noWalletState', 'gamesState'];
+    states.forEach(id => {
+      const element = document.getElementById(id);
+      if (id === stateId) {
+        element.style.display = id === 'loadingState' ? 'flex' : 'block';
+        if (id === 'loadingState') {
+          element.classList.add('show');
+        }
+      } else {
+        element.style.display = 'none';
+        if (element.classList.contains('show')) {
+          element.classList.remove('show');
+        }
+      }
+    });
+  }
+
+  function goToIndex() {
+    window.location.href = 'index.html';
+  }
+
+  async function waitForWalletInjection(maxWait = 5000) {
+    return new Promise((resolve) => {
+      let attempts = 0;
+      const maxAttempts = maxWait / 100;
+      
+      const checkForWallet = () => {
+        if (window.ethereum || attempts >= maxAttempts) {
+          resolve();
+        } else {
+          attempts++;
+          setTimeout(checkForWallet, 100);
+        }
+      };
+      
+      checkForWallet();
+    });
+  }
+
+  async function initializeWallet() {
+    try {
+      showState('loadingState');
+
+      if (!ConnectionState.isValid()) {
+        console.log('No valid connection state found');
+        showState('noWalletState');
+        return;
+      }
+
+      currentConnection = ConnectionState.load();
+      console.log('Loaded connection state:', currentConnection);
+      
+      await waitForWalletInjection(1000);
+
+      let walletProvider = null;
+      
+      console.log('Looking for wallet type:', currentConnection.walletType);
+      
+      if (window.ethereum?.providers && Array.isArray(window.ethereum.providers)) {
+        console.log('Multiple providers found:', window.ethereum.providers.length);
+        
+        if (currentConnection.walletType === 'metamask') {
+          walletProvider = window.ethereum.providers.find(p => 
+            p.isMetaMask && !p.isNightly && !p.isCoinbaseWallet
+          );
+        } else if (currentConnection.walletType === 'nightly') {
+          walletProvider = window.ethereum.providers.find(p => p.isNightly);
+        }
+      } else if (window.ethereum) {
+        console.log('Single provider found');
+        
+        if (currentConnection.walletType === 'metamask' && window.ethereum.isMetaMask && !window.ethereum.isNightly) {
+          walletProvider = window.ethereum;
+        } else if (currentConnection.walletType === 'nightly' && window.ethereum.isNightly) {
+          walletProvider = window.ethereum;
+        }
+      }
+      
+      if (!walletProvider && currentConnection.walletType === 'metamask' && window.MetaMask) {
+        walletProvider = window.MetaMask;
+      } else if (!walletProvider && currentConnection.walletType === 'nightly' && window.nightly?.ethereum) {
+        walletProvider = window.nightly.ethereum;
+      }
+
+      console.log('Selected provider:', walletProvider);
+
+      if (!walletProvider) {
+        throw new Error(`${currentConnection.walletType} wallet not found. Please reconnect.`);
+      }
+
+      provider = new ethers.BrowserProvider(walletProvider);
+      
+      let accounts;
+      try {
+        accounts = await provider.send("eth_accounts", []);
+        
+        if (!accounts || accounts.length === 0) {
+          accounts = await provider.send("eth_requestAccounts", []);
+        }
+      } catch (accountError) {
+        console.log("Fallback: requesting accounts directly");
+        accounts = await provider.send("eth_requestAccounts", []);
+      }
+      
+      if (!accounts || accounts.length === 0) {
+        throw new Error("Wallet is not connected. Please reconnect.");
+      }
+
+      userAddress = accounts[0];
+      console.log('Connected to address:', userAddress);
+      
+      if (userAddress.toLowerCase() !== currentConnection.address.toLowerCase()) {
+        console.warn("Address mismatch, updating connection");
+        currentConnection.address = userAddress;
+      }
+
+      const network = await provider.getNetwork();
+      if (network.chainId !== TARGET_NETWORK.chainId) {
+        alert(`Please switch to ${TARGET_NETWORK.chainName} (Chain ID ${TARGET_NETWORK.chainId}) to play games.`);
+        return;
+      }
+
+      signer = await provider.getSigner();
+      
+      // Check access status
+      await checkAccessStatus();
+      
+      updateUI();
+      showState('gamesState');
+
+    } catch (error) {
+      console.error('Failed to initialize wallet:', error);
+      
+      const statusDiv = document.getElementById('transactionStatus') || createStatusDiv();
+      statusDiv.style.display = 'block';
+      statusDiv.className = 'status-card error';
+      statusDiv.innerHTML = `
+        <h3>⚠️ Connection Error</h3>
+        <p style="margin: 12px 0;">${error.message}</p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <button onclick="initializeWallet()" class="pay-access-btn" style="max-width: 150px;">Retry</button>
+          <button onclick="ConnectionState.clear(); showState('noWalletState');" class="pay-access-btn" style="max-width: 150px; background: linear-gradient(135deg, #6B7280, #4B5563);">Reset</button>
+        </div>
+      `;
+      
+      if (!document.getElementById('transactionStatus')) {
+        document.querySelector('.container').appendChild(statusDiv);
+      }
+    }
+  }
+
+  function createStatusDiv() {
+    const div = document.createElement('div');
+    div.id = 'transactionStatus';
+    return div;
+  }
+
+  async function checkAccessStatus() {
+    // First check local storage
+    if (AccessTracker.isValid()) {
+      hasPaidAccess = true;
+      return;
+    }
+
+    // Then check blockchain for recent transactions
+    try {
+      const currentBlock = await provider.getBlockNumber();
+      const blocksToCheck = Math.min(10000, Math.floor(ACCESS_DURATION / 12000)); // Estimate blocks in 24 hours
+      
+      // Check recent transactions to company address
+      for (let i = 0; i < 50; i++) { // Check last 50 blocks for efficiency
+        try {
+          const blockNumber = currentBlock - i;
+          const block = await provider.getBlock(blockNumber, true);
+          
+          if (!block || !block.transactions) continue;
+          
+          for (const tx of block.transactions) {
+            if (tx.from?.toLowerCase() === userAddress.toLowerCase() && 
+                tx.to?.toLowerCase() === COMPANY_ADDRESS.toLowerCase() &&
+                tx.value && parseFloat(ethers.formatEther(tx.value)) >= parseFloat(ACCESS_FEE_S)) {
+              
+              // Found a valid payment transaction
+              const txTime = block.timestamp * 1000;
+              if ((Date.now() - txTime) < ACCESS_DURATION) {
+                hasPaidAccess = true;
+                AccessTracker.save(tx.hash, txTime);
+                return;
+              }
+            }
+          }
+        } catch (blockError) {
+          console.log(`Error checking block ${currentBlock - i}:`, blockError);
+        }
+      }
+    } catch (error) {
+      console.log('Error checking blockchain access:', error);
+    }
+    
+    hasPaidAccess = false;
+  }
+
+  function updateUI() {
+    // Update wallet info
+    const walletInfo = document.getElementById('walletInfo');
+    walletInfo.innerHTML = `
+      <div>
+        <strong>Wallet Type</strong>
+        <div style="font-size: 16px; color: var(--text-primary); text-transform: capitalize;">${currentConnection.walletType}</div>
+      </div>
+      <div>
+        <strong>Address</strong>
+        <div style="font-size: 16px; color: var(--text-primary); font-family: monospace;">${userAddress.slice(0, 8)}...${userAddress.slice(-6)}</div>
+      </div>
+      <div>
+        <strong>Network</strong>
+        <div style="font-size: 16px; color: var(--accent-cyan);">${TARGET_NETWORK.chainName}</div>
+      </div>
+    `;
+
+    // Update access status
+    const accessStatus = document.getElementById('accessStatus');
+    const payBtn = document.getElementById('payAccessBtn');
+    
+    if (hasPaidAccess) {
+      const accessData = AccessTracker.load();
+      const timeLeft = accessData ? Math.max(0, ACCESS_DURATION - (Date.now() - accessData.timestamp)) : 0;
+      const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+      const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      
+      accessStatus.className = 'access-status access-granted';
+      accessStatus.innerHTML = `🔓 Premium Vault Unlocked - ${hoursLeft}h ${minutesLeft}m remaining`;
+      payBtn.style.display = 'none';
+      
+      // Remove lock icons
+      document.querySelectorAll('.locked-icon').forEach(icon => {
+        if (icon.id === 'chess-lock') {
+          icon.style.display = 'none';
+        }
+      });
+    } else {
+      accessStatus.className = 'access-status access-needed';
+      accessStatus.innerHTML = `🔒 Premium Vault Locked - Unlock to access exclusive games (${ACCESS_FEE_S} ${TARGET_NETWORK.currencySymbol})`;
+      payBtn.style.display = 'block';
+      payBtn.textContent = `🔓 Unlock Premium Vault - ${ACCESS_FEE_S} ${TARGET_NETWORK.currencySymbol} (24 Hours)`;
+      
+      // Show lock icons
+      document.querySelectorAll('.locked-icon').forEach(icon => {
+        if (icon.id === 'chess-lock') {
+          icon.style.display = 'inline';
+        }
+      });
+    }
+  }
+
+  function playGame(gameId, gameType) {
+    if (gameType === 'paid' && !hasPaidAccess) {
+      // Create a nice modal-style alert
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'status-card error';
+      alertDiv.style.position = 'fixed';
+      alertDiv.style.top = '50%';
+      alertDiv.style.left = '50%';
+      alertDiv.style.transform = 'translate(-50%, -50%)';
+      alertDiv.style.zIndex = '1500';
+      alertDiv.style.maxWidth = '400px';
+      alertDiv.innerHTML = `
+        <h3>🔒 Premium Access Required</h3>
+        <p style="margin: 16px 0;">Unlock the Premium Vault to access this exclusive game!</p>
+        <button onclick="this.parentElement.remove()" class="pay-access-btn" style="max-width: 200px;">Got it!</button>
+      `;
+      document.body.appendChild(alertDiv);
+      
+      setTimeout(() => {
+        if (alertDiv.parentElement) {
+          alertDiv.remove();
+        }
+      }, 5000);
+      return;
+    }
+
+    const game = GAMES[gameId];
+    if (!game) {
+      alert('Game not found!');
+      return;
+    }
+
+    // Set up the iframe with smooth transition
+    const gameContainer = document.getElementById('gameContainer');
+    document.getElementById('gameTitle').textContent = game.title;
+    document.getElementById('gameFrame').src = game.path;
+    
+    // Smooth fade in
+    gameContainer.style.display = 'block';
+    gameContainer.style.opacity = '0';
+    setTimeout(() => {
+      gameContainer.style.transition = 'opacity 0.3s ease';
+      gameContainer.style.opacity = '1';
+    }, 10);
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeGame() {
+    const gameContainer = document.getElementById('gameContainer');
+    gameContainer.style.transition = 'opacity 0.3s ease';
+    gameContainer.style.opacity = '0';
+    
+    setTimeout(() => {
+      gameContainer.style.display = 'none';
+      document.getElementById('gameFrame').src = '';
+      document.body.style.overflow = 'auto';
+    }, 300);
+  }
+
+  async function payForAccess() {
+    const payBtn = document.getElementById('payAccessBtn');
+    const statusDiv = document.getElementById('transactionStatus') || createStatusDiv();
+    
+    try {
+      payBtn.disabled = true;
+      payBtn.textContent = 'Processing Payment...';
+      statusDiv.style.display = 'block';
+      statusDiv.className = 'status-card';
+      statusDiv.innerHTML = `
+        <div class="spinner"></div>
+        <p style="margin-top: 16px;">Preparing your transaction...</p>
+      `;
+
+      if (!document.getElementById('transactionStatus')) {
+        document.querySelector('.container').appendChild(statusDiv);
+      }
+
+      const balance = await provider.getBalance(userAddress);
+      const feeWei = ethers.parseEther(ACCESS_FEE_S);
+      
+      if (balance < feeWei) {
+        throw new Error(`Insufficient balance. Required: ${ACCESS_FEE_S} ${TARGET_NETWORK.currencySymbol}, Available: ${ethers.formatEther(balance)} ${TARGET_NETWORK.currencySymbol}`);
+      }
+
+      const gasEstimate = await provider.estimateGas({
+        to: COMPANY_ADDRESS,
+        value: feeWei,
+        from: userAddress
+      });
+
+      statusDiv.innerHTML = `
+        <div class="spinner"></div>
+        <p style="margin-top: 16px;">Sending transaction to blockchain...</p>
+      `;
+
+      const tx = await signer.sendTransaction({
+        to: COMPANY_ADDRESS,
+        value: feeWei,
+        gasLimit: gasEstimate * 120n / 100n
+      });
+
+      statusDiv.innerHTML = `
+        <div class="spinner"></div>
+        <p style="margin-top: 16px;">Transaction sent! Waiting for confirmation...</p>
+        <p style="font-size: 12px; word-break: break-all; margin-top: 8px; opacity: 0.7;">TX: ${tx.hash}</p>
+      `;
+
+      const receipt = await tx.wait();
+
+      if (receipt.status === 1) {
+        hasPaidAccess = true;
+        AccessTracker.save(tx.hash, Date.now());
+        
+        statusDiv.className = 'status-card success';
+        statusDiv.innerHTML = `
+          <h3>🎉 Payment Successful!</h3>
+          <p style="margin: 16px 0;">Welcome to the Premium Vault! You now have 24-hour access to all exclusive games.</p>
+          <p style="font-size: 12px; word-break: break-all; opacity: 0.7;">TX: ${tx.hash}</p>
+        `;
+        
+        updateUI();
+        
+        setTimeout(() => {
+          statusDiv.style.display = 'none';
+        }, 8000);
+      } else {
+        throw new Error('Transaction failed');
+      }
+
+    } catch (error) {
+      console.error('Payment error:', error);
+      
+      statusDiv.className = 'status-card error';
+      statusDiv.innerHTML = `
+        <h3>💳 Payment Failed</h3>
+        <p style="margin: 16px 0;">${error.message}</p>
+        <button onclick="document.getElementById('transactionStatus').style.display = 'none'" class="pay-access-btn" style="max-width: 200px;">Close</button>
+      `;
+    } finally {
+      payBtn.disabled = false;
+      payBtn.textContent = `🔓 Unlock Premium Vault - ${ACCESS_FEE_S} ${TARGET_NETWORK.currencySymbol} (24 Hours)`;
+    }
+  }
+
+  // Listen for account/network changes
+  if (window.ethereum) {
+    window.ethereum.on('accountsChanged', (accounts) => {
+      if (accounts.length === 0) {
+        ConnectionState.clear();
+        showState('noWalletState');
+      } else {
+        window.location.reload();
+      }
+    });
+
+    window.ethereum.on('chainChanged', (chainId) => {
+      window.location.reload();
+    });
+  }
+
+  // Keyboard shortcut to close game
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeGame();
+    }
+  });
+
+  // Initialize when page loads
+  window.addEventListener('load', () => {
+    console.log('=== 512GAMERS WALLET DEBUG ===');
+    console.log('window.ethereum:', window.ethereum);
+    console.log('Connection state:', ConnectionState.load());
+    console.log('Target network:', TARGET_NETWORK);
+    console.log('=============================');
+    
+    initializeWallet();
+  });
+
+  // Add some interactive effects
+  document.addEventListener('DOMContentLoaded', () => {
+    // Add floating animation to game cards
+    const gameCards = document.querySelectorAll('.game-card');
+    gameCards.forEach((card, index) => {
+      card.style.animationDelay = `${index * 0.1}s`;
+      card.classList.add('floating');
+    });
+
+    // Add subtle parallax effect to background
+    let ticking = false;
+    
+    function updateParallax() {
+      const scrolled = window.pageYOffset;
+      const parallaxElements = document.querySelectorAll('.header::before');
+      
+      parallaxElements.forEach(element => {
+        const speed = 0.5;
+        element.style.transform = `translateY(${scrolled * speed}px)`;
+      });
+      
+      ticking = false;
+    }
+
+    function requestTick() {
+      if (!ticking) {
+        requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', requestTick);
+  });
+</script>
+
+
+</body>
+</html>

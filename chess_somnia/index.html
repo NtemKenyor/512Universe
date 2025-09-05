@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess AI Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .loading-container {
+            text-align: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #4CAF50;
+            animation: spin 1s ease-in-out infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            color: #7f8c8d;
+            margin-top: 0;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+    <script>
+        // Cookie functions
+        function setCookie(name, value, days = 7) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+        
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length);
+            }
+            return null;
+        }
+        
+        function getUrlParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        function updateStatus(message) {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.style.display = 'block';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get walletAddress from URL parameter or generate random one
+            let walletAddress = getUrlParam('walletAddress');
+            if (!walletAddress) {
+                walletAddress = '0x' + Math.random().toString(16).substr(2, 40); // Random address for demo
+            }
+            
+            // Store walletAddress in cookie for other pages
+            console.log("setting this as wallet add: ", walletAddress);
+            setCookie('walletAddress', walletAddress);
+            
+            // Determine if we're running locally
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            // Set WebSocket and external URLs based on environment
+            const wsUrl = isLocalhost 
+                ? 'ws://localhost:3000/chesssol/backend/ws' 
+                : 'wss://chesssol.com/api/chesssol/backend/ws';
+            
+            const externalUrl = isLocalhost
+                ? 'http://localhost/Chess-Sol/chesssol_pure/game.html'
+                : 'https://chesssol.com/pure/game.html'; // Replace with your production URL
+            
+            updateStatus('Connecting to game server...');
+            
+            // Create WebSocket connection
+            const socket = new WebSocket(wsUrl);
+            
+            socket.addEventListener('open', function(event) {
+                updateStatus('Creating AI game...');
+                console.log('WebSocket connection opened');
+                
+                // Create an AI game
+                const createGameMessage = {
+                    type: 'create',
+                    duration: 300000, // 5 minutes
+                    cat: 'AI',
+                    walletAddress: walletAddress,
+                    side: 'random' // Let the server assign us a side
+                };
+                
+                socket.send(JSON.stringify(createGameMessage));
+            });
+            
+            socket.addEventListener('message', function(event) {
+                const data = JSON.parse(event.data);
+                console.log('Message from server:', data);
+                
+                if (data.type === 'created') {
+                    updateStatus('Joining game...');
+                    console.log('Game created with ID:', data.gameId);
+                    
+                    // Now join the game we just created
+                    // const joinGameMessage = {
+                    //     type: 'join',
+                    //     gameId: data.gameId,
+                    //     walletAddress: walletAddress
+                    // };
+                    
+                    // socket.send(JSON.stringify(joinGameMessage));
+                }
+                else if (data.type === 'joined') {
+                    updateStatus('Game ready! Redirecting...');
+                    console.log('Successfully joined game:', data.gameId);
+                    
+                    // Redirect to external URL with game details
+                    const redirectUrl = new URL(externalUrl);
+                    redirectUrl.searchParams.append('gameId', data.gameId);
+                    redirectUrl.searchParams.append('walletAddress', walletAddress);
+                    redirectUrl.searchParams.append('playerColor', data.color);
+                    redirectUrl.searchParams.append('fen', data.fen);
+
+                    
+                    // Small delay to let user see the final status
+                    setTimeout(() => {
+                        window.location.href = redirectUrl.toString();
+                    }, 500);
+                }
+                else if (data.type === 'error') {
+                    console.error('Error:', data.message);
+                    updateStatus('Error: ' + data.message);
+                    alert('Error: ' + data.message);
+                }
+            });
+            
+            socket.addEventListener('error', function(error) {
+                console.error('WebSocket error:', error);
+                updateStatus('Connection error. Please try again.');
+                alert('WebSocket connection error. Please try again.');
+            });
+            
+            socket.addEventListener('close', function(event) {
+                console.log('WebSocket connection closed');
+                if (!event.wasClean) {
+                    updateStatus('Connection lost. Please refresh the page.');
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <h1>Connecting to Chess AI Game</h1>
+        <p>Please wait while we set up your game</p>
+        <div id="status" class="status"></div>
+    </div>
+</body>
+</html>

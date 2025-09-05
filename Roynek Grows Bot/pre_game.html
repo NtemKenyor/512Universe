@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Bot</title>
+    <style>
+        body {
+            text-align: center; 
+            background-color: #030124;
+            /* background-image: url(../../images/a1in1mover.gif); */
+            background-image: url(https://roynek.com/alltrenders/codes/images/a1in1mover.gif);
+            background-size: 100%;
+            color: #fff;
+        }
+        /* .game { width: 300px; height: 300px; background-color: #f0f0f0; margin: 50px auto; } */
+        .popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 300px;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        button{
+            padding: 12px;
+            width: 100%;
+            border-radius: 12px;
+            border: 2px solid #f8d7da;
+            background-color: #000;
+            color:#fff;
+            font-size: 1.3rem;
+            margin-top: 5px;
+        }
+
+        input{
+            padding: 12px;
+            border: 2px dotted #f8d7da;
+            font-size: 1.3rem;
+            width: 100%;
+        }
+
+        .popup.success { background-color: #d4edda; color: #155724; }
+        .popup.error { background-color: #f8d7da; color: #721c24; }
+        .popup.warning { background-color: #fff3cd; color: #856404; }
+        .popup .icon { font-size: 50px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>We are only sure about 1 thing, We would launch some great tokens...</h1>
+    <div class="game">
+        <!-- <p>Game area</p> -->
+    </div>
+    <div id="successPopup" class="popup success">
+        <div class="icon">✔️</div>
+        <div id="successMessage">Success message</div>
+    </div>
+    <div id="errorPopup" class="popup error">
+        <div class="icon">❌</div>
+        <div id="errorMessage">Error message</div>
+    </div>
+    <div id="warningPopup" class="popup warning">
+        <div class="icon">⚠️</div>
+        <div id="warningMessage">Warning message</div>
+    </div>
+    <script>
+        function getQueryParam(param) {
+            let params = new URLSearchParams(window.location.search);
+            return params.get(param);
+        }
+
+        function showPopup(type, message) {
+            let popup = document.getElementById(`${type}Popup`);
+            document.getElementById(`${type}Message`).textContent = message;
+            popup.style.display = 'block';
+            setTimeout(() => { popup.style.display = 'none'; }, 3000);
+        }
+
+        function checkUserInfo(telegramId) {
+            // var email = getCookie('email');
+            if(getQueryParam('hash') && getQueryParam('tele_id') && getQueryParam('username')){
+                var tele_id = getQueryParam('tele_id');
+                var username = getQueryParam('username');
+                // let directedBy = getQueryParam('directed_by');
+                var hash = getQueryParam('hash');
+
+                const url = 'login_hash.php'; // Replace with the actual URL of your PHP script
+
+                const formData = new FormData();
+                formData.append('hash', hash);
+                formData.append('tele_id', tele_id);
+                formData.append('username', username);
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === true) {
+                        if (!data.user.email) {
+                            showRegistrationForm(update_status=true);
+                        } else {
+                            // showPopup('success', `Welcome back! Your current score is: ${data.user.growse_ability}`);
+                            setTimeout(() => { navigateTo(); }, 3000);
+                            
+                        }
+                    } else {
+                        showRegistrationForm();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }else{
+                showPopup('error', 'URL: Missing Parameters in URL.')
+            }
+        }
+
+        function showRegistrationForm(update_status = false) {
+            let buttonHtml = update_status 
+                ? '<button onclick="updateUserEmail()">Update</button>' 
+                : '<button onclick="registerUser()">Register</button>';
+
+            let formHtml = `
+                <div id="registrationForm" style="display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #000; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000;">
+                    <h2>Complete Registration and Earn more</h2>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required style="margin-bottom: 10px; padding: 8px; width: 100%;">
+                    ${buttonHtml}
+                    <br/>
+                    <button onclick="navigateTo()"> Never </button>
+                </div>
+                <div id="overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;"></div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', formHtml);
+            document.getElementById('overlay').addEventListener('click', function() {
+                document.getElementById('registrationForm').style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+
+                // if they clicked outside, get them to the game
+                navigateTo();
+            });
+        }
+
+        function generatePassword(email) {
+            let username = email.split('@')[0];
+            let domain = email.split('@')[1].split('.')[0];
+            return username + domain + '123';
+        }
+
+        function getFormattedDateTime() {
+            let now = new Date();
+            let year = now.getFullYear();
+            let month = (now.getMonth() + 1).toString().padStart(2, '0');
+            let day = now.getDate().toString().padStart(2, '0');
+            let hour = now.getHours();
+            let minutes = now.getMinutes().toString().padStart(2, '0');
+            let seconds = now.getSeconds().toString().padStart(2, '0');
+            let timmings = (hour >= 0 && hour < 12) ? "am" : "pm";
+            hour = (hour % 12) || 12; // Convert to 12-hour format, ensuring 0 becomes 12
+            let formattedTime = hour.toString().padStart(2, '0') + ":" + minutes + ":" + seconds + timmings;
+            let formattedDate = `${year}-${month}-${day}`;
+            return { formattedDate, formattedTime };
+        }
+
+        function registerUser() {
+            let email = document.getElementById('email').value;
+            let password = generatePassword(email);
+            let telegramId = getQueryParam('tele_id');
+            let username = getQueryParam('username');
+            let firstname = getQueryParam('first_name');
+            let lastname = getQueryParam('last_name');
+            let directedBy = getQueryParam('directed_by');
+            let { formattedDate, formattedTime } = getFormattedDateTime();
+
+            let formData = new FormData();
+            formData.append('username', username);
+            formData.append('firstname', firstname);
+            formData.append('lastname', lastname);
+            formData.append('email', email);
+            formData.append('password', password);
+            formData.append('third_party_id', telegramId);
+            formData.append('signup_date', formattedDate);
+            formData.append('signup_time', formattedTime);
+            formData.append('directed_by', directedBy);
+
+            fetch('register_user.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === true) {
+                    showPopup('success', 'Registration successful! Your auto-generated password is: ' + password);
+                    // setCookie('password', password, 365);
+                    // setCookie('email', email, 365);
+                    // setCookie('directed_by', directedBy, 365);
+                    // setCookie('tele_id', telegramId, 365);
+                    location.reload();
+                } else {
+                    showPopup('error', 'Registration failed: ' + data.message);
+                }
+            })
+            .catch(error => showPopup('error', 'Error registering user.'));
+        }
+
+
+        function updateUserEmail() {
+            let email = document.getElementById('email').value;
+            // let password = generatePassword(email);
+            let telegramId = getQueryParam('tele_id');
+            let directedBy = getQueryParam('directed_by');
+            let username = getQueryParam('username');
+            let firstname = getQueryParam('first_name');
+            let lastname = getQueryParam('last_name');
+            let { formattedDate, formattedTime } = getFormattedDateTime();
+
+            // Create a FormData object
+            let formData = new FormData();
+            formData.append('username', username);
+            formData.append('firstname', firstname);
+            formData.append('lastname', lastname);
+            formData.append('email', email);
+            // formData.append('password', password);
+            formData.append('third_party_id', telegramId);
+            formData.append('signup_date', formattedDate);
+            formData.append('signup_time', formattedTime);
+            formData.append('directed_by', directedBy);
+
+            // Send the request using fetch
+            fetch('update_user_details.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === true) {
+                    // alert('Update successful!');
+                    showPopup('success', 'Added Email Sucessfully. You have some extra coins');
+                    // setCookie('password', password, 365);
+                    // setCookie('email', email, 365);
+                    // setCookie('directed_by', directedBy, 365);
+                    // setCookie('tele_id', telegramId, 365);
+                    location.reload();
+                } else {
+                    // alert('Update failed: ' + data.message);
+                    showPopup('error', 'Email link-up failed: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                let date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            let nameEQ = name + "=";
+            let ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            let telegramId = getQueryParam('tele_id');
+            if (telegramId) {
+                checkUserInfo(telegramId);
+            } else {
+                showPopup('error', 'Telegram ID not found in URL.');
+            }
+        });
+
+        function navigateTo(page = 'game_club.html') {
+            const params = new URLSearchParams(window.location.search);
+            window.location.href = `${page}?${params.toString()}`;
+        }
+    </script>
+</body>
+</html>
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Bot</title>
+    <style>
+        body { text-align: center; }
+        .game { width: 300px; height: 300px; background-color: #f0f0f0; margin: 50px auto; }
+    </style>
+     <script>
+        function getQueryParam(param) {
+            let params = new URLSearchParams(window.location.search);
+            return params.get(param);
+        }
+
+        function checkUserInfo(telegramId) {
+            fetch(`game_user_info.php?tele_id=${telegramId}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === true) {
+                        alert(`Welcome back! Your current score is: ${data.user.growse_coin}`);
+                    } else {
+                        showRegistrationForm();
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function showRegistrationForm() {
+            let formHtml = `
+                <div id="registrationForm" style="display: block;">
+                    <h2>Complete Registration</h2>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                    <button onclick="registerUser()">Register</button>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', formHtml);
+        }
+
+        function generatePassword(email) {
+            let username = email.split('@')[0];
+            let domain = email.split('@')[1].split('.')[0];
+            return username + domain + '123';
+        }
+
+        /* function registerUser() {
+            let email = document.getElementById('email').value;
+            let password = generatePassword(email);
+            let telegramId = getQueryParam('tele_id');
+            let data = {
+                username: telegramId,
+                email: email,
+                password: password,
+                third_party_id: telegramId
+            };
+
+            fetch('register_user.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === 'success') {
+                    alert('Registration successful! Your auto-generated password is: ' + password);
+                } else {
+                    alert('Registration failed: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        } */
+
+        function getFormattedDateTime() {
+            let now = new Date();
+            let year = now.getFullYear();
+            let month = (now.getMonth() + 1).toString().padStart(2, '0');
+            let day = now.getDate().toString().padStart(2, '0');
+            let hour = now.getHours();
+            let minutes = now.getMinutes().toString().padStart(2, '0');
+            let seconds = now.getSeconds().toString().padStart(2, '0');
+            let timmings = (hour >= 0 && hour < 12) ? "am" : "pm";
+            hour = (hour % 12) || 12; // Convert to 12-hour format, ensuring 0 becomes 12
+            let formattedTime = hour.toString().padStart(2, '0') + ":" + minutes + ":" + seconds + timmings;
+            let formattedDate = `${year}-${month}-${day}`;
+            return { formattedDate, formattedTime };
+        }
+
+        function registerUser() {
+            let email = document.getElementById('email').value;
+            let password = generatePassword(email);
+            let telegramId = getQueryParam('tele_id');
+            let directedBy = getQueryParam('directed_by');
+            let { formattedDate, formattedTime } = getFormattedDateTime();
+
+            // Create a FormData object
+            let formData = new FormData();
+            formData.append('username', telegramId);
+            formData.append('email', email);
+            formData.append('password', password);
+            formData.append('third_party_id', telegramId);
+            formData.append('signup_date', formattedDate);
+            formData.append('signup_time', formattedTime);
+            formData.append('directed_by', directedBy);
+
+            // Send the request using fetch
+            fetch('register_user.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === true) {
+                    alert('Registration successful! Your auto-generated password is: ' + password);
+                } else {
+                    alert('Registration failed: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function updateUserEmail() {
+            let email = document.getElementById('email').value;
+            // let password = generatePassword(email);
+            let telegramId = getQueryParam('tele_id');
+            let directedBy = getQueryParam('directed_by');
+            let { formattedDate, formattedTime } = getFormattedDateTime();
+
+            // Create a FormData object
+            let formData = new FormData();
+            formData.append('username', telegramId);
+            formData.append('email', email);
+            // formData.append('password', password);
+            formData.append('third_party_id', telegramId);
+            formData.append('signup_date', formattedDate);
+            formData.append('signup_time', formattedTime);
+            formData.append('directed_by', directedBy);
+
+            // Send the request using fetch
+            fetch('update_user_details.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === true) {
+                    alert('Update successful!');
+                } else {
+                    alert('Update failed: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            let telegramId = getQueryParam('tele_id');
+            if (telegramId) {
+                checkUserInfo(telegramId);
+            } else {
+                alert('Telegram ID not found in URL.');
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>Welcome to the Gaming Bot Game!</h1>
+    <div class="game">
+        <p>Game area</p>
+    </div>
+    <script>
+        // Game logic
+        document.querySelector('.game').addEventListener('click', () => {
+            alert('You clicked the game area!');
+            // Update points logic can be added here
+        });
+    </script>
+</body>
+</html>
+ -->

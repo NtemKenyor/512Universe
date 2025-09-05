@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>512RELATES - Sonic Dating</title>
+  <script src="assets/js/libs/ethers.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-bg: #0a0a0f;
+      --secondary-bg: #111118;
+      --accent-purple: #8B5CF6;
+      --accent-cyan: #06B6D4;
+      --accent-pink: #EC4899;
+      --accent-gold: #F59E0B;
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --text-primary: #ffffff;
+      --text-secondary: #a3a3a3;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      
+      /* Responsive variables */
+      --header-size: clamp(2.5rem, 6vw, 4rem);
+      --subheader-size: clamp(0.9rem, 3vw, 1rem);
+      --profile-img-size: clamp(200px, 70vw, 280px);
+      --profile-img-height: clamp(240px, 80vw, 320px);
+      --button-padding: clamp(12px, 3vw, 16px) clamp(20px, 4vw, 32px);
+      --modal-padding: clamp(20px, 5vw, 40px);
+      --tag-font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+    }
+
+    body {
+      background: var(--primary-bg);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0 10px;
+      overflow-x: hidden;
+    }
+
+    /* Enhanced animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(139, 92, 246, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 50% 10%, rgba(236, 72, 153, 0.3) 0%, transparent 50%),
+        linear-gradient(135deg, #0a0a0f 0%, #111118 50%, #0a0a0f 100%);
+      animation: backgroundShift 20s ease-in-out infinite;
+      z-index: -2;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.1) 2px, transparent 2px),
+        radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+        radial-gradient(circle at 40% 60%, rgba(236, 72, 153, 0.08) 1.5px, transparent 1.5px);
+      background-size: 80px 80px, 60px 60px, 100px 100px;
+      animation: floatDots 25s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes backgroundShift {
+      0%, 100% { opacity: 1; filter: hue-rotate(0deg); }
+      50% { opacity: 0.8; filter: hue-rotate(10deg); }
+    }
+
+    @keyframes floatDots {
+      0% { transform: translateY(0) translateX(0); }
+      100% { transform: translateY(-80px) translateX(-20px); }
+    }
+
+    .header {
+      margin: clamp(20px, 6vw, 40px) 0 clamp(10px, 3vw, 20px);
+      text-align: center;
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: clamp(150px, 50vw, 200px);
+      height: clamp(150px, 50vw, 200px);
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulse 4s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.6; }
+      50% { transform: translateX(-50%) scale(1.2); opacity: 0.9; }
+    }
+
+    .header h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: var(--header-size);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple), var(--accent-cyan));
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientFlow 3s ease-in-out infinite;
+      margin-bottom: 8px;
+      text-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
+      padding: 0 10px;
+    }
+
+    @keyframes gradientFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .header p {
+      font-size: var(--subheader-size);
+      color: var(--text-secondary);
+      font-weight: 500;
+      letter-spacing: 1px;
+      padding: 0 10px;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: clamp(10px, 3vw, 20px);
+      left: clamp(10px, 3vw, 20px);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px);
+      border-radius: 50px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: clamp(12px, 3vw, 14px);
+      white-space: nowrap;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    }
+
+    /* Loading and Error States */
+    .loading, .error-state, .no-wallet-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 20px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .loading.show, .error-state.show, .no-wallet-state.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: clamp(40px, 10vw, 60px);
+      height: clamp(40px, 10vw, 60px);
+      border: 3px solid var(--glass-border);
+      border-top: 3px solid var(--accent-pink);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .wallet-info {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: clamp(15px, 3vw, 20px);
+      backdrop-filter: blur(20px);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: clamp(10px, 2vw, 16px);
+      margin: clamp(10px, 3vw, 20px);
+      max-width: 600px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wallet-info::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-pink), var(--accent-purple), var(--accent-cyan));
+      background-size: 300% 100%;
+      animation: gradientSlide 3s ease-in-out infinite;
+    }
+
+    @keyframes gradientSlide {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .wallet-info > div {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .wallet-info strong {
+      color: var(--accent-cyan);
+      font-size: clamp(10px, 2.5vw, 12px);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .wallet-info span {
+      font-size: clamp(12px, 2.5vw, 14px);
+      font-weight: 500;
+      font-family: monospace;
+    }
+
+    /* Profile Card */
+    .profile-container {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding: clamp(10px, 3vw, 20px);
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .profile-container.show {
+      display: flex;
+    }
+
+    .profile-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 25px;
+      padding: clamp(20px, 4vw, 30px);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(20px);
+      position: relative;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(236, 72, 153, 0.2);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: cardFloat 6s ease-in-out infinite;
+      margin: 0 10px;
+    }
+
+    @keyframes cardFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      25% { transform: translateY(-8px) rotate(0.5deg); }
+      75% { transform: translateY(8px) rotate(-0.5deg); }
+    }
+
+    .profile-card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple), var(--accent-cyan), var(--accent-gold));
+      background-size: 400% 400%;
+      border-radius: 25px;
+      z-index: -1;
+      animation: borderGlow 4s ease-in-out infinite;
+    }
+
+    @keyframes borderGlow {
+      0%, 100% { 
+        background-position: 0% 50%; 
+        opacity: 0.6;
+      }
+      50% { 
+        background-position: 100% 50%; 
+        opacity: 1;
+      }
+    }
+
+    .profile-card img {
+      width: 100%;
+      max-width: var(--profile-img-size);
+      height: var(--profile-img-height);
+      border-radius: 20px;
+      object-fit: cover;
+      margin-bottom: clamp(15px, 3vw, 20px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+      transition: all 0.4s ease;
+    }
+
+    .profile-card img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 20px 40px rgba(236, 72, 153, 0.3);
+    }
+
+    .nickname {
+      font-size: clamp(1.5rem, 5vw, 1.8rem);
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: clamp(8px, 2vw, 10px);
+      font-family: 'Orbitron', monospace;
+      text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+      animation: nameGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes nameGlow {
+      0% { text-shadow: 0 0 20px rgba(6, 182, 212, 0.5); }
+      100% { text-shadow: 0 0 30px rgba(6, 182, 212, 0.8); }
+    }
+
+    .wallet {
+      font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+      color: var(--accent-pink);
+      margin-bottom: clamp(12px, 2.5vw, 16px);
+      font-family: monospace;
+      background: rgba(236, 72, 153, 0.1);
+      padding: clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 16px);
+      border-radius: 15px;
+      border: 1px solid rgba(236, 72, 153, 0.3);
+      word-break: break-all;
+    }
+
+    .tags {
+      font-size: var(--tag-font-size);
+      color: var(--text-secondary);
+      margin: clamp(12px, 2.5vw, 16px) 0 clamp(20px, 4vw, 24px);
+      display: grid;
+      gap: clamp(6px, 1.5vw, 8px);
+      text-align: left;
+      background: rgba(255, 255, 255, 0.03);
+      padding: clamp(15px, 3vw, 20px);
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tags > div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      font-weight: 500;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: clamp(10px, 2.5vw, 15px);
+      margin-top: clamp(15px, 3vw, 20px);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, var(--accent-gold), #D97706);
+      border: none;
+      border-radius: 50px;
+      padding: var(--button-padding);
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      font-size: clamp(14px, 3vw, 16px);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+      white-space: nowrap;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(245, 158, 11, 0.5);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2);
+    }
+
+    .nav-btns {
+      position: fixed;
+      bottom: clamp(20px, 5vw, 30px);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: clamp(20px, 4vw, 30px);
+      z-index: 100;
+    }
+
+    .nav-btns button {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 50%;
+      width: clamp(50px, 12vw, 60px);
+      height: clamp(50px, 12vw, 60px);
+      font-size: clamp(20px, 5vw, 24px);
+      color: var(--text-primary);
+      cursor: pointer;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-btns button:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-5px) scale(1.1);
+      box-shadow: 0 15px 35px rgba(139, 92, 246, 0.4);
+      border-color: var(--accent-purple);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      animation: modalFadeIn 0.3s ease;
+      padding: 15px;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(45, 55, 72, 0.95));
+      padding: var(--modal-padding);
+      border-radius: 25px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      position: relative;
+      backdrop-filter: blur(20px);
+      border: 2px solid var(--glass-border);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes modalSlideIn {
+      from { transform: translateY(50px) scale(0.9); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .modal-content::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple), var(--accent-cyan));
+      background-size: 300% 300%;
+      border-radius: 25px;
+      z-index: -1;
+      animation: borderGlow 3s ease-in-out infinite;
+    }
+
+    .modal-content h3 {
+      margin-bottom: clamp(16px, 3vw, 24px);
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.2rem, 4vw, 1.4rem);
+      color: var(--accent-cyan);
+    }
+
+    .modal-btn {
+      display: block;
+      width: 100%;
+      margin: clamp(8px, 2vw, 12px) 0;
+      padding: clamp(14px, 3vw, 16px) clamp(20px, 4vw, 24px);
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: clamp(14px, 3vw, 16px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .modal-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .modal-btn:hover::before {
+      left: 100%;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: clamp(10px, 2vw, 15px);
+      right: clamp(15px, 3vw, 20px);
+      background: none;
+      border: none;
+      color: var(--error);
+      font-size: clamp(24px, 5vw, 28px);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      width: clamp(40px, 8vw, 44px);
+      height: clamp(40px, 8vw, 44px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      transform: rotate(90deg);
+    }
+
+    /* Status messages */
+    .status-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: clamp(20px, 4vw, 24px);
+      margin: clamp(15px, 3vw, 20px);
+      backdrop-filter: blur(20px);
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .status-card.error {
+      border-color: var(--error);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .status-card.success {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .status-card h3 {
+      margin-bottom: clamp(10px, 2.5vw, 12px);
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1rem, 3vw, 1.2rem);
+    }
+
+    /* Connect wallet button */
+    .connect-wallet-btn {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+      color: white;
+      border: none;
+      padding: clamp(16px, 4vw, 20px) clamp(30px, 6vw, 40px);
+      border-radius: 50px;
+      font-size: clamp(16px, 4vw, 18px);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      font-family: 'Inter', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    }
+
+    .connect-wallet-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 15px 40px rgba(139, 92, 246, 0.5);
+    }
+
+    /* Transaction Status */
+    #transactionStatus {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3000;
+      max-width: 400px;
+      width: 90%;
+      display: none;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .wallet-info {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-card {
+        padding: 20px;
+      }
+
+      .profile-card img {
+        max-width: 240px;
+        height: 280px;
+      }
+
+      .nav-btns {
+        bottom: 20px;
+      }
+
+      .nav-btns button {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+      }
+
+      .back-btn {
+        position: relative;
+        margin: 10px;
+        align-self: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header h1 {
+        font-size: 2.5rem;
+      }
+
+      .modal-content {
+        padding: 20px 15px;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+
+    /* Tablet-specific styles */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .profile-card {
+        max-width: 450px;
+      }
+
+      .profile-card img {
+        max-width: 260px;
+        height: 300px;
+      }
+    }
+
+    /* Large screen styles */
+    @media (min-width: 1200px) {
+      .profile-container {
+        max-width: 1400px;
+      }
+
+      .profile-card {
+        max-width: 550px;
+      }
+
+      .profile-card img {
+        max-width: 320px;
+        height: 360px;
+      }
+    }
+
+    /* Orientation-specific adjustments */
+    @media (max-height: 600px) and (orientation: landscape) {
+      .header {
+        margin: 15px 0 10px;
+      }
+
+      .profile-card {
+        padding: 15px;
+      }
+
+      .profile-card img {
+        max-width: 180px;
+        height: 220px;
+        margin-bottom: 10px;
+      }
+
+      .tags {
+        margin: 10px 0 15px;
+        padding: 12px;
+      }
+
+      .nav-btns {
+        bottom: 15px;
+      }
+    }
+
+    /* High DPI screens */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .profile-card img {
+        filter: contrast(1.1) brightness(1.05);
+      }
+    }
+
+    /* Reduced motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Dark mode support (already dark but adding for completeness) */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text-primary: #ffffff;
+        --text-secondary: #a3a3a3;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="goToIndex()">
+    <span>←</span> Back to Universe
+  </button>
+
+  <div class="header">
+    <h1>512RELATES</h1>
+    <p>Find Your Sonic Soulmate</p>
+  </div>
+
+  <!-- Loading State -->
+  <div id="loadingState" class="loading">
+    <div class="spinner"></div>
+    <p style="margin-top: 16px; font-size: 18px; font-weight: 500;">Connecting to your wallet...</p>
+  </div>
+
+  <!-- No Wallet State -->
+  <div id="noWalletState" class="no-wallet-state">
+    <div class="status-card error">
+      <h3>🔌 No Wallet Connected</h3>
+      <p style="margin: 16px 0;">Connect your wallet to start dating on Sonic</p>
+      <button class="connect-wallet-btn" onclick="goToIndex()">
+        Connect Wallet
+      </button>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div id="errorState" class="error-state">
+    <div class="status-card error">
+      <h3>⚠️ Connection Error</h3>
+      <p id="errorMessage" style="margin: 16px 0;"></p>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
+        <button onclick="initializeWallet()" class="btn" style="max-width: 150px;">Retry</button>
+        <button onclick="goToIndex()" class="btn" style="max-width: 150px; background: linear-gradient(135deg, #6B7280, #4B5563);">Go Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" style="display: none; width: 100%; flex: 1; display: flex; flex-direction: column; align-items: center;">
+    <div class="wallet-info" id="walletInfo"></div>
+    
+    <div class="profile-container" id="profileContainer">
+      <div class="profile-card">
+        <img id="avatar" src="assets/profiles/avatar_woman.jpg" alt="profile" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSJncmFkaWVudCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMjQiPkF2YXRhcjwvdGV4dD4KPHN2Zz4='">
+        <div class="nickname" id="nickname">Loading...</div>
+        <div class="wallet" id="walletAddress">0x...</div>
+        <div class="tags" id="tags">
+          <div>📍 Loading location...</div>
+          <div>📏 Loading height...</div>
+          <div>🌎 Loading ethnicity...</div>
+          <div>🎂 Loading age...</div>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="openConnectModal()" id="connectBtn">
+            Connect
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btns" id="navBtns" style="display: none;">
+    <button onclick="prevProfile()" title="Previous Profile">‹</button>
+    <button onclick="nextProfile()" title="Next Profile">›</button>
+  </div>
+
+  <!-- Connect Modal -->
+  <div id="connectModal" class="modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeConnectModal()">×</button>
+      <h3>Choose Connection Type</h3>
+      <button class="modal-btn" onclick="payMeetup()">
+        🤝 Meetup <span style="font-size: 14px; opacity: 0.8;">(0.00001 S)</span>
+      </button>
+      <button class="modal-btn" onclick="payHookup()">
+        🔥 Hookup <span id="hookupPrice" style="font-size: 14px; opacity: 0.8;">(Profile Fee)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Transaction Status -->
+  <div id="transactionStatus" style="display: none;"></div>
+
+  <!-- <script>
+    // The JavaScript code remains the same as in your original file
+    // Only CSS has been modified for responsiveness
+    // [JavaScript code unchanged - same as in your original file]
+  </script> -->
+
+  <script>
+    // Sonic network configuration
+    const SONIC_NETWORKS = {
+        mainnet: {
+            chainId: 146n,
+            chainName: "Sonic",
+            rpcUrl: "https://rpc.soniclabs.com",
+            explorerUrl: "https://sonicscan.org",
+            currencySymbol: "S"
+        },
+        testnet: {
+            chainId: 14601n,
+            chainName: "Sonic Testnet",
+            rpcUrl: "https://rpc.testnet.soniclabs.com",
+            explorerUrl: "https://testnet.sonicscan.org",
+            currencySymbol: "S",
+            faucet: "https://testnet.soniclabs.com/account"
+        }
+    };
+
+    // Determine which network to use
+    function getTargetNetwork() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const networkParam = urlParams.get('network');
+        
+        return networkParam === 'testnet' ? SONIC_NETWORKS.testnet : SONIC_NETWORKS.mainnet;
+    }
+
+    const TARGET_NETWORK = getTargetNetwork();
+    const MEETUP_FEE = TARGET_NETWORK === SONIC_NETWORKS.testnet ? "0.00001" : "0.001";
+    const COMPANY_ADDRESS = "0xcB00fB1Bc16F9e5fEB3bB817d8C4D456d60Aa58C";
+
+    let provider = null;
+    let signer = null;
+    let userAddress = null;
+    let currentConnection = null;
+
+    // Sample profiles - replace with real data from your backend
+    const profiles = [
+      {
+        avatar: "avatar_woman.jpg", 
+        nickname: "Luna", 
+        wallet: "0x3f...a91c",
+        tags: ["📍 California", "📏 5.6ft", "🌎 Black-American", "🎂 21"],
+        hookupFee: TARGET_NETWORK === SONIC_NETWORKS.testnet ? "0.002" : "0.02"
+      },
+      {
+        avatar: "avatar_man_1.jpg", 
+        nickname: "Jay", 
+        wallet: "0x7a...d41e",
+        tags: ["📍 Texas", "📏 6.1ft", "🌎 Latino", "🎂 25"],
+        hookupFee: TARGET_NETWORK === SONIC_NETWORKS.testnet ? "0.003" : "0.03"
+      },
+      {
+        avatar: "avatar_woman.webp", 
+        nickname: "Maya", 
+        wallet: "0x92...b87f",
+        tags: ["📍 New York", "📏 5.4ft", "🌎 Asian", "🎂 23"],
+        hookupFee: TARGET_NETWORK === SONIC_NETWORKS.testnet ? "0.004" : "0.04"
+      },
+      {
+        avatar: "avatar_man_2.jpg", 
+        nickname: "Alex", 
+        wallet: "0x45...c23d",
+        tags: ["📍 Miami", "📏 5.9ft", "🌎 Mixed", "🎂 27"],
+        hookupFee: TARGET_NETWORK === SONIC_NETWORKS.testnet ? "0.0025" : "0.025"
+      },
+      {
+        avatar: "avatar_woman_2.jpg", 
+        nickname: "Zara", 
+        wallet: "0x89...f56e",
+        tags: ["📍 London", "📏 5.7ft", "🌎 European", "🎂 24"],
+        hookupFee: TARGET_NETWORK === SONIC_NETWORKS.testnet ? "0.0035" : "0.035"
+      }
+    ];
+
+    let currentIndex = 0;
+
+    // Connection state management
+    const ConnectionState = {
+      load: () => {
+        const data = sessionStorage.getItem('wallet_connection');
+        return data ? JSON.parse(data) : null;
+      },
+      
+      clear: () => {
+        sessionStorage.removeItem('wallet_connection');
+      },
+      
+      isValid: () => {
+        const data = ConnectionState.load();
+        if (!data) return false;
+        
+        const maxAge = 24 * 60 * 60 * 1000;
+        return (Date.now() - data.timestamp) < maxAge;
+      }
+    };
+
+    function showState(stateId) {
+      const states = ['loadingState', 'noWalletState', 'errorState', 'mainContent'];
+      states.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          if (id === stateId) {
+            element.style.display = id === 'loadingState' ? 'flex' : 'block';
+            if (['loadingState', 'noWalletState', 'errorState'].includes(id)) {
+              element.classList.add('show');
+            }
+          } else {
+            element.style.display = 'none';
+            element.classList.remove('show');
+          }
+        }
+      });
+      
+      // Show/hide navigation buttons
+      const navBtns = document.getElementById('navBtns');
+      if (navBtns) {
+        navBtns.style.display = stateId === 'mainContent' ? 'flex' : 'none';
+      }
+    }
+
+    function goToIndex() {
+      window.location.href = 'index.html' + (TARGET_NETWORK === SONIC_NETWORKS.testnet ? '?network=testnet' : '');
+    }
+
+    async function waitForWalletInjection(maxWait = 5000) {
+      return new Promise((resolve) => {
+        let attempts = 0;
+        const maxAttempts = maxWait / 100;
+        
+        const checkForWallet = () => {
+          if (window.ethereum || attempts >= maxAttempts) {
+            resolve();
+          } else {
+            attempts++;
+            setTimeout(checkForWallet, 100);
+          }
+        };
+        
+        checkForWallet();
+      });
+    }
+
+    async function initializeWallet() {
+      try {
+        showState('loadingState');
+
+        if (!ConnectionState.isValid()) {
+          console.log('No valid connection state found');
+          showState('noWalletState');
+          return;
+        }
+
+        currentConnection = ConnectionState.load();
+        console.log('Loaded connection state:', currentConnection);
+        
+        await waitForWalletInjection(1000);
+
+        let walletProvider = null;
+        
+        // Find the correct wallet provider
+        if (window.ethereum?.providers && Array.isArray(window.ethereum.providers)) {
+          if (currentConnection.walletType === 'metamask') {
+            walletProvider = window.ethereum.providers.find(p => 
+              p.isMetaMask && !p.isNightly && !p.isCoinbaseWallet
+            );
+          } else if (currentConnection.walletType === 'nightly') {
+            walletProvider = window.ethereum.providers.find(p => p.isNightly);
+          }
+        } else if (window.ethereum) {
+          if (currentConnection.walletType === 'metamask' && window.ethereum.isMetaMask && !window.ethereum.isNightly) {
+            walletProvider = window.ethereum;
+          } else if (currentConnection.walletType === 'nightly' && window.ethereum.isNightly) {
+            walletProvider = window.ethereum;
+          }
+        }
+        
+        if (!walletProvider && currentConnection.walletType === 'metamask' && window.MetaMask) {
+          walletProvider = window.MetaMask;
+        } else if (!walletProvider && currentConnection.walletType === 'nightly' && window.nightly?.ethereum) {
+          walletProvider = window.nightly.ethereum;
+        }
+
+        if (!walletProvider) {
+          throw new Error(`${currentConnection.walletType} wallet not found. Please reconnect.`);
+        }
+
+        provider = new ethers.BrowserProvider(walletProvider);
+        
+        let accounts;
+        try {
+          accounts = await provider.send("eth_accounts", []);
+          
+          if (!accounts || accounts.length === 0) {
+            accounts = await provider.send("eth_requestAccounts", []);
+          }
+        } catch (accountError) {
+          accounts = await provider.send("eth_requestAccounts", []);
+        }
+        
+        if (!accounts || accounts.length === 0) {
+          throw new Error("Wallet is not connected. Please reconnect.");
+        }
+
+        userAddress = accounts[0];
+        
+        if (userAddress.toLowerCase() !== currentConnection.address.toLowerCase()) {
+          currentConnection.address = userAddress;
+        }
+
+        const network = await provider.getNetwork();
+        console.log('Connected network:', network);
+        console.log('TARGET_NETWORK:', TARGET_NETWORK);
+        if (network.chainId !== TARGET_NETWORK.chainId) {
+          showError(`Please switch to ${TARGET_NETWORK.chainName} (Chain ID ${TARGET_NETWORK.chainId}) to use 512RELATES.`);
+          return;
+        }
+
+        signer = await provider.getSigner();
+        
+        updateUI();
+        renderProfile();
+        showState('mainContent');
+        
+        // Show profile container
+        const profileContainer = document.getElementById('profileContainer');
+        if (profileContainer) {
+          profileContainer.classList.add('show');
+        }
+
+      } catch (error) {
+        console.error('Failed to initialize wallet:', error);
+        showError(error.message);
+      }
+    }
+
+    function showError(message) {
+      const errorState = document.getElementById('errorState');
+      const errorMessage = document.getElementById('errorMessage');
+      if (errorMessage) {
+        errorMessage.textContent = message;
+      }
+      showState('errorState');
+    }
+
+    function updateUI() {
+      // Update wallet info
+      const walletInfo = document.getElementById('walletInfo');
+      if (walletInfo && currentConnection) {
+        walletInfo.innerHTML = `
+          <div>
+            <strong>Wallet</strong>
+            <span style="text-transform: capitalize;">${currentConnection.walletType}</span>
+          </div>
+          <div>
+            <strong>Address</strong>
+            <span>${userAddress.slice(0, 6)}...${userAddress.slice(-4)}</span>
+          </div>
+          <div>
+            <strong>Network</strong>
+            <span>${TARGET_NETWORK.chainName}</span>
+          </div>
+        `;
+      }
+    }
+
+    function renderProfile() {
+      const profile = profiles[currentIndex];
+      
+      // Update avatar
+      const avatar = document.getElementById('avatar');
+      if (avatar) {
+        avatar.src = `assets/profiles/${profile.avatar}`;
+        avatar.onerror = function() {
+          this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJiZyIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agc3RvcC1jb2xvcj0iIzhCNUNGNiIgc3RvcC1vcGFjaXR5PSIwLjIiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNFQzQ4OTkiIHN0b3Atb3BhY2l0eT0iMC4yIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjI4MCIgaGVpZ2h0PSIzMjAiIGZpbGw9InVybCgjYmcpIiByeD0iMjAiLz48Y2lyY2xlIGN4PSIxNDAiIGN5PSIxMjAiIHI9IjQwIiBmaWxsPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMykiLz48cGF0aCBkPSJNMTAwIDIwMGg4MHYyMGgtODB6IiBmaWxsPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMykiIHJ4PSIxMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNzAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuNikiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCI+QXZhdGFyPC90ZXh0Pjwvc3ZnPg==';
+        };
+      }
+      
+      // Update nickname
+      const nickname = document.getElementById('nickname');
+      if (nickname) {
+        nickname.textContent = profile.nickname;
+      }
+      
+      // Update wallet address
+      const walletAddress = document.getElementById('walletAddress');
+      if (walletAddress) {
+        walletAddress.textContent = profile.wallet;
+      }
+      
+      // Update tags
+      const tags = document.getElementById('tags');
+      if (tags) {
+        tags.innerHTML = profile.tags.map(tag => `<div>${tag}</div>`).join('');
+      }
+      
+      // Update hookup price in modal
+      const hookupPrice = document.getElementById('hookupPrice');
+      if (hookupPrice) {
+        hookupPrice.textContent = `(${profile.hookupFee} ${TARGET_NETWORK.currencySymbol})`;
+      }
+    }
+
+    function nextProfile() {
+      currentIndex = (currentIndex + 1) % profiles.length;
+      renderProfile();
+    }
+
+    function prevProfile() {
+      currentIndex = (currentIndex - 1 + profiles.length) % profiles.length;
+      renderProfile();
+    }
+
+    function openConnectModal() {
+      const modal = document.getElementById('connectModal');
+      if (modal) {
+        modal.classList.add('show');
+      }
+    }
+
+    function closeConnectModal() {
+      const modal = document.getElementById('connectModal');
+      if (modal) {
+        modal.classList.remove('show');
+      }
+    }
+
+    async function payMeetup() {
+      await makePayment(MEETUP_FEE, 'Meetup');
+    }
+
+    async function payHookup() {
+      const profile = profiles[currentIndex];
+      await makePayment(profile.hookupFee, 'Hookup');
+    }
+
+    async function makePayment(amount, type) {
+      const statusDiv = document.getElementById('transactionStatus') || createStatusDiv();
+      
+      try {
+        const profile = profiles[currentIndex];
+        
+        // Disable buttons
+        const connectBtn = document.getElementById('connectBtn');
+        if (connectBtn) {
+          connectBtn.disabled = true;
+          connectBtn.textContent = 'Processing...';
+        }
+        
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'status-card';
+        statusDiv.innerHTML = `
+          <div class="spinner"></div>
+          <p style="margin-top: 16px;">Preparing your ${type.toLowerCase()} transaction...</p>
+        `;
+
+        if (!document.getElementById('transactionStatus')) {
+          document.body.appendChild(statusDiv);
+        }
+
+        // Check balance
+        const balance = await provider.getBalance(userAddress);
+        const amountWei = ethers.parseEther(amount);
+        
+        if (balance < amountWei) {
+          throw new Error(`Insufficient balance. Required: ${amount} ${TARGET_NETWORK.currencySymbol}, Available: ${ethers.formatEther(balance)} ${TARGET_NETWORK.currencySymbol}`);
+        }
+
+        // Estimate gas
+        const gasEstimate = await provider.estimateGas({
+          to: COMPANY_ADDRESS,
+          value: amountWei,
+          from: userAddress
+        });
+
+        statusDiv.innerHTML = `
+          <div class="spinner"></div>
+          <p style="margin-top: 16px;">Sending ${type.toLowerCase()} request to ${profile.nickname}...</p>
+        `;
+
+        // Send transaction
+        const tx = await signer.sendTransaction({
+          to: COMPANY_ADDRESS,
+          value: amountWei,
+          gasLimit: gasEstimate * 120n / 100n
+        });
+
+        statusDiv.innerHTML = `
+          <div class="spinner"></div>
+          <p style="margin-top: 16px;">Transaction sent! Waiting for confirmation...</p>
+          <p style="font-size: 12px; word-break: break-all; margin-top: 8px; opacity: 0.7;">TX: ${tx.hash}</p>
+        `;
+
+        const receipt = await tx.wait();
+
+        if (receipt.status === 1) {
+          statusDiv.className = 'status-card success';
+          statusDiv.innerHTML = `
+            <h3>🎉 ${type} Request Sent!</h3>
+            <p style="margin: 16px 0;">Your ${type.toLowerCase()} request has been sent to ${profile.nickname}. They will be notified!</p>
+            <p style="font-size: 12px; word-break: break-all; opacity: 0.7;">TX: ${tx.hash}</p>
+          `;
+          
+          closeConnectModal();
+          
+          setTimeout(() => {
+            statusDiv.style.display = 'none';
+          }, 8000);
+        } else {
+          throw new Error('Transaction failed');
+        }
+
+      } catch (error) {
+        console.error('Payment error:', error);
+        
+        statusDiv.className = 'status-card error';
+        statusDiv.innerHTML = `
+          <h3>💳 Payment Failed</h3>
+          <p style="margin: 16px 0;">${error.message}</p>
+          <button onclick="document.getElementById('transactionStatus').style.display = 'none'" class="btn" style="max-width: 200px; margin-top: 16px;">Close</button>
+        `;
+        
+        closeConnectModal();
+      } finally {
+        // Re-enable button
+        const connectBtn = document.getElementById('connectBtn');
+        if (connectBtn) {
+          connectBtn.disabled = false;
+          connectBtn.textContent = 'Connect';
+        }
+      }
+    }
+
+    function createStatusDiv() {
+      const div = document.createElement('div');
+      div.id = 'transactionStatus';
+      div.style.position = 'fixed';
+      div.style.top = '50%';
+      div.style.left = '50%';
+      div.style.transform = 'translate(-50%, -50%)';
+      div.style.zIndex = '3000';
+      div.style.maxWidth = '400px';
+      div.style.width = '90%';
+      return div;
+    }
+
+    // Listen for account/network changes
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length === 0) {
+          ConnectionState.clear();
+          showState('noWalletState');
+        } else {
+          window.location.reload();
+        }
+      });
+
+      window.ethereum.on('chainChanged', (chainId) => {
+        window.location.reload();
+      });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+      const modal = document.getElementById('connectModal');
+      if (e.target === modal) {
+        closeConnectModal();
+      }
+    });
+
+    // Initialize when page loads
+    window.addEventListener('load', () => {
+      console.log('=== 512RELATES INITIALIZATION ===');
+      console.log('Target network:', TARGET_NETWORK);
+      console.log('Connection state:', ConnectionState.load());
+      console.log('=====================================');
+      
+      initializeWallet();
+    });
+
+    // Add keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        prevProfile();
+      } else if (e.key === 'ArrowRight') {
+        nextProfile();
+      } else if (e.key === 'Escape') {
+        closeConnectModal();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>River Adventure Game</title>
+    <link rel="icon" href="../logo.jpg" type="image/jpeg">
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-image: url('https://i.pinimg.com/originals/31/46/f6/3146f6e9d0daaba23ee565abbd87043a.gif'); /* Ocean/water background */
+            background-size: cover; /* Cover the entire body */
+            position: relative; /* Position for score element */
+        }
+        #gameCanvas {
+            border: 2px solid #333;
+            background-color: rgba(135, 206, 235, 0.5); /* Semi-transparent sky blue for the canvas */
+            display: block;
+            margin: auto;
+            position: absolute; /* Position absolute to fill the screen */
+            top: 0; /* Align to top */
+            left: 0; /* Align to left */
+        }
+        #score {
+            position: absolute; /* Position absolute for fixed placement */
+            top: 20px; /* Distance from top */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust for center alignment */
+            color: white; /* Score text color */
+            font-size: 20px; /* Score text size */
+            z-index: 10; /* Ensure score is above other elements */
+        }
+        /* Bubble animation */
+        /* CSS for bubbles */
+        .bubble {
+            position: absolute;
+            bottom: 0; /* Start from the bottom */
+            background-color: rgba(255, 255, 255, 0.7); /* White bubbles with some transparency */
+            border-radius: 50%; /* Make them round */
+            animation: bubble-up 5s ease-in infinite; /* Animation for bubbles going up */
+        }
+
+        /* Bubble animation */
+        @keyframes bubble-up {
+            0% {
+                transform: translateY(0); /* Start position */
+            }
+            100% {
+                transform: translateY(-100vh); /* Move to the top of the viewport */
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="600" height="400"></canvas>
+<div id="score">Score: 0</div>
+
+<audio id="bgMusic" loop autoplay>
+    <source src="music.mp3" type="audio/mpeg"> <!-- Replace with actual music URL -->
+    Your browser does not support the audio tag.
+</audio>
+
+<script src="script_slient.js?id=4785594" defer></script>
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Adjust canvas size to fill the screen
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Game variables
+    const platformer = { x: 50, y: 150, width: 40, height: 30, dy: 0 };
+    const fishes = [];
+    const fishWidth = 30;
+    const fishHeight = 20;
+    const gravity = 0.5;
+    let score = 0;
+    let gameOver = false;
+
+    // Event listener for key presses
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowUp') {
+            platformer.dy = -5;
+        } else if (event.key === 'ArrowDown') {
+            platformer.dy = 5;
+        }
+    });
+
+    // Event listener for clicks (mobile/touchpad)
+    canvas.addEventListener('click', () => {
+        platformer.dy = -5; // Move up on click
+    });
+
+    // Function to create a fish
+    function createFish() {
+        const fishY = Math.random() * (canvas.height - fishHeight);
+        fishes.push({ x: canvas.width, y: fishY, width: fishWidth, height: fishHeight });
+    }
+
+    // Function to draw the platformer
+    function drawPlayer() {
+        ctx.font = '40px Arial'; // Set font size
+        ctx.fillStyle = 'brown'; // Color for the boat
+        ctx.textAlign = 'center';
+        ctx.fillText('🚣🏿', platformer.x + platformer.width / 2, platformer.y + platformer.height / 1.5);
+    }
+
+
+    // Array of aquatic life emojis
+    const aquaticLife = [
+        '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', 
+        '🦞', '🦀', '🪼', '🪸', '🐡', 
+        '🐠', '🐟', '🐬', '🐳', '🐋', '🦈'
+    ];
+
+    // Function to create a fish
+    function createFish() {
+        const fishY = Math.random() * (canvas.height - fishHeight);
+        const randomFish = aquaticLife[Math.floor(Math.random() * aquaticLife.length)]; // Select a random fish emoji
+        fishes.push({ x: canvas.width, y: fishY, width: fishWidth, height: fishHeight, emoji: randomFish }); // Store emoji in fish object
+    }
+
+    // Function to draw a fish
+    function drawFish(fish) {
+        ctx.font = '30px Arial'; // Set font size for fish
+        ctx.fillStyle = 'blue'; // Color for the fish
+        ctx.textAlign = 'center';
+        ctx.fillText(fish.emoji, fish.x + fish.width / 2, fish.y + fish.height / 1.5); // Draw the stored fish emoji
+    }
+
+    /* // Array of aquatic life emojis
+    const aquaticLife = [
+        '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', 
+        '🦞', '🦀', '🪼', '🪸', '🐡', 
+        '🐠', '🐟', '🐬', '🐳', '🐋', '🦈'
+    ];
+
+    // Function to draw a fish
+    function drawFish(fish) {
+        const randomFish = aquaticLife[Math.floor(Math.random() * aquaticLife.length)]; // Select a random fish emoji
+        ctx.font = '30px Arial'; // Set font size for fish
+        ctx.fillStyle = 'blue'; // Color for the fish
+        ctx.textAlign = 'center';
+        ctx.fillText(randomFish, fish.x + fish.width / 2, fish.y + fish.height / 1.5); // Draw the selected fish emoji
+    }
+
+    // Function to draw a fish
+    function drawFish(fish) {
+        ctx.font = '30px Arial'; // Set font size for fish
+        ctx.fillStyle = 'blue'; // Color for the fish
+        ctx.textAlign = 'center';
+        ctx.fillText('🐠', fish.x + fish.width / 2, fish.y + fish.height / 1.5);
+    }
+ */
+
+
+    // Function to draw the background
+    function drawBackground() {
+        ctx.fillStyle = '#87CEEB'; // Set solid color for the background
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Function to update the game state
+    function update() {
+        if (gameOver) return;
+
+        // Update platformer position
+        platformer.y += platformer.dy;
+        platformer.dy += gravity; // Gravity effect
+
+        // Prevent the platformer from going out of bounds
+        if (platformer.y < 0) platformer.y = 0;
+        if (platformer.y > canvas.height - platformer.height) platformer.y = canvas.height - platformer.height;
+
+        // Update fish positions
+        for (let i = fishes.length - 1; i >= 0; i--) {
+            fishes[i].x -= 3; // Fish speed
+            if (fishes[i].x + fishes[i].width < 0) {
+                fishes.splice(i, 1); // Remove off-screen fish
+                score++;
+                document.getElementById('score').innerText = `Score: ${score}`; // Update score display
+            }
+        }
+
+        // Collision detection
+        for (const fish of fishes) {
+            if (platformer.x < fish.x + fish.width && platformer.x + platformer.width > fish.x &&
+                platformer.y < fish.y + fish.height && platformer.y + platformer.height > fish.y) {
+                gameOver = true; // End game on collision
+            }
+        }
+    }
+
+    // Function to draw everything on the canvas
+    async function draw() {
+        drawBackground(); // Draw the solid background
+        drawPlayer(); // Draw the platformer
+
+        // Draw fishes
+        for (const fish of fishes) {
+            drawFish(fish);
+        }
+
+        // Game over message
+        if (gameOver) {
+            ctx.fillStyle = 'red';
+            ctx.font = '40px Arial';
+            ctx.fillText('Game Over!', canvas.width / 2 - 100, canvas.height / 2);
+            ctx.font = '20px Arial';
+            // ctx.fillText('Press F5 to Restart', canvas.width / 2 - 70, canvas.height / 2 + 30);
+            let ret = await confirm_("Would you like to play again?");
+            if(ret){
+                // Start the game
+                location.reload();
+
+            }
+            
+        }
+    }
+
+    // Main game loop
+    function gameLoop() {
+        update();
+        draw();
+        if (!gameOver) {
+            requestAnimationFrame(gameLoop);
+        }
+    }
+
+    // Start the game
+    setInterval(createFish, 1000); // Create a fish every second
+    gameLoop();
+
+    // Play background music
+    const bgMusic = document.getElementById('bgMusic');
+    bgMusic.play();
+
+    // Create bubble animations
+    function createBubble() {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        const size = Math.random() * (60 - 20) + 20; // Random size for bubbles
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${Math.random() * window.innerWidth}px`;
+        bubble.style.bottom = `${-size}px`; // Start slightly below the bottom for a smoother effect
+        document.body.appendChild(bubble);
+
+        // Remove the bubble after the animation
+        bubble.addEventListener('animationend', () => {
+            bubble.remove();
+        });
+    }
+
+    // Create bubbles at intervals
+    setInterval(createBubble, 500); // Create a bubble every 500ms
+
+</script>
+
+</body>
+</html>

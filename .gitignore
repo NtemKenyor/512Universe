@@ -1,0 +1,18 @@
+.env
+*.env
+
+*node_modules
+*.log
+encrypted_*.php
+encrypted_*.html
+encrypted.json
+# /Roynek Grows Bot/encrypted_index.php
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.jks
+*.jceks
+*.jks
