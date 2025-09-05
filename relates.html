@@ -27,15 +27,6 @@
       --success: #10B981;
       --warning: #F59E0B;
       --error: #EF4444;
-      
-      /* Responsive variables */
-      --header-size: clamp(2.5rem, 6vw, 4rem);
-      --subheader-size: clamp(0.9rem, 3vw, 1rem);
-      --profile-img-size: clamp(200px, 70vw, 280px);
-      --profile-img-height: clamp(240px, 80vw, 320px);
-      --button-padding: clamp(12px, 3vw, 16px) clamp(20px, 4vw, 32px);
-      --modal-padding: clamp(20px, 5vw, 40px);
-      --tag-font-size: clamp(0.8rem, 2.5vw, 0.95rem);
     }
 
     body {
@@ -44,12 +35,12 @@
       font-family: 'Inter', sans-serif;
       margin: 0;
       position: relative;
+      min-height: 100vh;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
-      padding: 0 10px;
-      overflow-x: hidden;
+      justify-content: flex-start;
     }
 
     /* Enhanced animated background */
@@ -95,13 +86,53 @@
       100% { transform: translateY(-80px) translateX(-20px); }
     }
 
-    .header {
-      margin: clamp(20px, 6vw, 40px) 0 clamp(10px, 3vw, 20px);
-      text-align: center;
-      position: relative;
-      z-index: 10;
+    /* Main container for centered content */
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
       width: 100%;
       max-width: 1200px;
+      padding: 20px;
+      gap: 30px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      padding: 12px 20px;
+      border-radius: 50px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    }
+
+    .header {
+      text-align: center;
+      position: relative;
+      margin-bottom: 20px;
     }
 
     .header::before {
@@ -110,8 +141,8 @@
       top: -30px;
       left: 50%;
       transform: translateX(-50%);
-      width: clamp(150px, 50vw, 200px);
-      height: clamp(150px, 50vw, 200px);
+      width: 200px;
+      height: 200px;
       background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%);
       border-radius: 50%;
       animation: pulse 4s ease-in-out infinite;
@@ -125,7 +156,7 @@
 
     .header h1 {
       font-family: 'Orbitron', monospace;
-      font-size: var(--header-size);
+      font-size: clamp(3rem, 8vw, 5rem);
       font-weight: 900;
       background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple), var(--accent-cyan));
       background-size: 300% 300%;
@@ -133,9 +164,8 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
       animation: gradientFlow 3s ease-in-out infinite;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       text-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
-      padding: 0 10px;
     }
 
     @keyframes gradientFlow {
@@ -144,85 +174,36 @@
     }
 
     .header p {
-      font-size: var(--subheader-size);
+      font-size: clamp(1rem, 3vw, 1.2rem);
       color: var(--text-secondary);
       font-weight: 500;
       letter-spacing: 1px;
-      padding: 0 10px;
     }
 
-    .back-btn {
-      position: fixed;
-      top: clamp(10px, 3vw, 20px);
-      left: clamp(10px, 3vw, 20px);
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      color: var(--text-primary);
-      padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px);
-      border-radius: 50px;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      cursor: pointer;
-      backdrop-filter: blur(20px);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 1000;
+    /* Content wrapper for better organization */
+    .content-wrapper {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: clamp(12px, 3vw, 14px);
-      white-space: nowrap;
-    }
-
-    .back-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
-    }
-
-    /* Loading and Error States */
-    .loading, .error-state, .no-wallet-state {
-      display: none;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 60vh;
-      gap: 20px;
-      text-align: center;
-      padding: 20px;
+      gap: 30px;
+      width: 100%;
     }
 
-    .loading.show, .error-state.show, .no-wallet-state.show {
-      display: flex;
-    }
-
-    .spinner {
-      width: clamp(40px, 10vw, 60px);
-      height: clamp(40px, 10vw, 60px);
-      border: 3px solid var(--glass-border);
-      border-top: 3px solid var(--accent-pink);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
+    /* Centered wallet info */
     .wallet-info {
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 20px;
-      padding: clamp(15px, 3vw, 20px);
+      padding: 20px;
       backdrop-filter: blur(20px);
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: clamp(10px, 2vw, 16px);
-      margin: clamp(10px, 3vw, 20px);
-      max-width: 600px;
+      gap: 16px;
       width: 100%;
+      max-width: 600px;
       position: relative;
       overflow: hidden;
+      text-align: center;
     }
 
     .wallet-info::before {
@@ -245,34 +226,62 @@
     .wallet-info > div {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
       align-items: center;
-      text-align: center;
     }
 
     .wallet-info strong {
       color: var(--accent-cyan);
-      font-size: clamp(10px, 2.5vw, 12px);
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 1px;
       font-weight: 600;
     }
 
     .wallet-info span {
-      font-size: clamp(12px, 2.5vw, 14px);
+      font-size: 14px;
       font-weight: 500;
       font-family: monospace;
     }
 
-    /* Profile Card */
-    .profile-container {
+    /* Loading and Error States - Centered */
+    .loading, .error-state, .no-wallet-state {
       display: none;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex: 1;
-      padding: clamp(10px, 3vw, 20px);
+      text-align: center;
+      gap: 20px;
+      padding: 40px;
       width: 100%;
-      max-width: 1200px;
+      max-width: 500px;
+    }
+
+    .loading.show, .error-state.show, .no-wallet-state.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 3px solid var(--glass-border);
+      border-top: 3px solid var(--accent-pink);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Profile Card - Centered and improved */
+    .profile-container {
+      display: none;
+      width: 100%;
+      max-width: 500px;
+      align-items: center;
+      justify-content: center;
     }
 
     .profile-container.show {
@@ -283,8 +292,7 @@
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 25px;
-      padding: clamp(20px, 4vw, 30px);
-      max-width: 500px;
+      padding: 30px;
       width: 100%;
       text-align: center;
       backdrop-filter: blur(20px);
@@ -294,13 +302,11 @@
         0 0 30px rgba(236, 72, 153, 0.2);
       transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       animation: cardFloat 6s ease-in-out infinite;
-      margin: 0 10px;
     }
 
     @keyframes cardFloat {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      25% { transform: translateY(-8px) rotate(0.5deg); }
-      75% { transform: translateY(8px) rotate(-0.5deg); }
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
     }
 
     .profile-card::before {
@@ -330,11 +336,11 @@
 
     .profile-card img {
       width: 100%;
-      max-width: var(--profile-img-size);
-      height: var(--profile-img-height);
+      max-width: 280px;
+      height: 320px;
       border-radius: 20px;
       object-fit: cover;
-      margin-bottom: clamp(15px, 3vw, 20px);
+      margin-bottom: 20px;
       box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
       transition: all 0.4s ease;
     }
@@ -345,10 +351,10 @@
     }
 
     .nickname {
-      font-size: clamp(1.5rem, 5vw, 1.8rem);
+      font-size: clamp(1.5rem, 5vw, 2rem);
       font-weight: 700;
       color: var(--accent-cyan);
-      margin-bottom: clamp(8px, 2vw, 10px);
+      margin-bottom: 15px;
       font-family: 'Orbitron', monospace;
       text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
       animation: nameGlow 3s ease-in-out infinite alternate;
@@ -360,26 +366,26 @@
     }
 
     .wallet {
-      font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
       color: var(--accent-pink);
-      margin-bottom: clamp(12px, 2.5vw, 16px);
+      margin-bottom: 20px;
       font-family: monospace;
       background: rgba(236, 72, 153, 0.1);
-      padding: clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 16px);
+      padding: 12px 16px;
       border-radius: 15px;
       border: 1px solid rgba(236, 72, 153, 0.3);
       word-break: break-all;
     }
 
     .tags {
-      font-size: var(--tag-font-size);
+      font-size: clamp(0.85rem, 2.5vw, 0.95rem);
       color: var(--text-secondary);
-      margin: clamp(12px, 2.5vw, 16px) 0 clamp(20px, 4vw, 24px);
+      margin: 20px 0 30px;
       display: grid;
-      gap: clamp(6px, 1.5vw, 8px);
-      text-align: left;
+      gap: 12px;
+      text-align: center;
       background: rgba(255, 255, 255, 0.03);
-      padding: clamp(15px, 3vw, 20px);
+      padding: 20px;
       border-radius: 15px;
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
@@ -387,23 +393,23 @@
     .tags > div {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 4px 0;
+      justify-content: center;
+      gap: 10px;
+      padding: 8px 0;
       font-weight: 500;
     }
 
     .actions {
       display: flex;
       justify-content: center;
-      gap: clamp(10px, 2.5vw, 15px);
-      margin-top: clamp(15px, 3vw, 20px);
+      margin-top: 20px;
     }
 
     .btn {
       background: linear-gradient(135deg, var(--accent-gold), #D97706);
       border: none;
       border-radius: 50px;
-      padding: var(--button-padding);
+      padding: 16px 32px;
       font-weight: 600;
       color: white;
       cursor: pointer;
@@ -416,6 +422,7 @@
       letter-spacing: 0.5px;
       box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
       white-space: nowrap;
+      min-width: 140px;
     }
 
     .btn::before {
@@ -445,13 +452,14 @@
       box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2);
     }
 
+    /* Centered navigation buttons */
     .nav-btns {
       position: fixed;
-      bottom: clamp(20px, 5vw, 30px);
+      bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: clamp(20px, 4vw, 30px);
+      gap: 30px;
       z-index: 100;
     }
 
@@ -459,9 +467,9 @@
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 50%;
-      width: clamp(50px, 12vw, 60px);
-      height: clamp(50px, 12vw, 60px);
-      font-size: clamp(20px, 5vw, 24px);
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
       color: var(--text-primary);
       cursor: pointer;
       backdrop-filter: blur(20px);
@@ -479,7 +487,7 @@
       border-color: var(--accent-purple);
     }
 
-    /* Modal */
+    /* Modal improvements */
     .modal {
       display: none;
       position: fixed;
@@ -493,7 +501,7 @@
       align-items: center;
       z-index: 2000;
       animation: modalFadeIn 0.3s ease;
-      padding: 15px;
+      padding: 20px;
     }
 
     @keyframes modalFadeIn {
@@ -507,7 +515,7 @@
 
     .modal-content {
       background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(45, 55, 72, 0.95));
-      padding: var(--modal-padding);
+      padding: 40px;
       border-radius: 25px;
       text-align: center;
       max-width: 400px;
@@ -539,24 +547,24 @@
     }
 
     .modal-content h3 {
-      margin-bottom: clamp(16px, 3vw, 24px);
+      margin-bottom: 30px;
       font-family: 'Orbitron', monospace;
-      font-size: clamp(1.2rem, 4vw, 1.4rem);
+      font-size: clamp(1.3rem, 4vw, 1.6rem);
       color: var(--accent-cyan);
     }
 
     .modal-btn {
       display: block;
       width: 100%;
-      margin: clamp(8px, 2vw, 12px) 0;
-      padding: clamp(14px, 3vw, 16px) clamp(20px, 4vw, 24px);
+      margin: 15px 0;
+      padding: 16px 24px;
       background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
       color: white;
       border: none;
       border-radius: 50px;
       cursor: pointer;
       font-weight: 600;
-      font-size: clamp(14px, 3vw, 16px);
+      font-size: 16px;
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
@@ -584,18 +592,18 @@
 
     .close-btn {
       position: absolute;
-      top: clamp(10px, 2vw, 15px);
-      right: clamp(15px, 3vw, 20px);
+      top: 15px;
+      right: 20px;
       background: none;
       border: none;
       color: var(--error);
-      font-size: clamp(24px, 5vw, 28px);
+      font-size: 28px;
       cursor: pointer;
       padding: 8px;
       border-radius: 50%;
       transition: all 0.3s ease;
-      width: clamp(40px, 8vw, 44px);
-      height: clamp(40px, 8vw, 44px);
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -611,12 +619,12 @@
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 16px;
-      padding: clamp(20px, 4vw, 24px);
-      margin: clamp(15px, 3vw, 20px);
+      padding: 30px;
+      margin: 20px 0;
       backdrop-filter: blur(20px);
       text-align: center;
-      max-width: 500px;
       width: 100%;
+      max-width: 500px;
     }
 
     .status-card.error {
@@ -630,19 +638,18 @@
     }
 
     .status-card h3 {
-      margin-bottom: clamp(10px, 2.5vw, 12px);
+      margin-bottom: 15px;
       font-family: 'Orbitron', monospace;
-      font-size: clamp(1rem, 3vw, 1.2rem);
+      font-size: clamp(1.1rem, 3vw, 1.3rem);
     }
 
-    /* Connect wallet button */
     .connect-wallet-btn {
       background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
       color: white;
       border: none;
-      padding: clamp(16px, 4vw, 20px) clamp(30px, 6vw, 40px);
+      padding: 18px 36px;
       border-radius: 50px;
-      font-size: clamp(16px, 4vw, 18px);
+      font-size: 16px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.4s ease;
@@ -657,7 +664,6 @@
       box-shadow: 0 15px 40px rgba(139, 92, 246, 0.5);
     }
 
-    /* Transaction Status */
     #transactionStatus {
       position: fixed;
       top: 50%;
@@ -671,8 +677,15 @@
 
     /* Responsive design */
     @media (max-width: 768px) {
+      .main-container {
+        padding: 15px;
+        gap: 20px;
+      }
+
       .wallet-info {
         grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 15px;
       }
 
       .profile-card {
@@ -686,6 +699,7 @@
 
       .nav-btns {
         bottom: 20px;
+        gap: 20px;
       }
 
       .nav-btns button {
@@ -696,8 +710,13 @@
 
       .back-btn {
         position: relative;
-        margin: 10px;
+        margin-bottom: 10px;
         align-self: flex-start;
+      }
+
+      .modal-content {
+        padding: 25px 20px;
+        margin: 10px;
       }
     }
 
@@ -706,51 +725,22 @@
         font-size: 2.5rem;
       }
 
-      .modal-content {
-        padding: 20px 15px;
-      }
-
-      .actions {
-        flex-direction: column;
-      }
-
       .btn {
         width: 100%;
+        max-width: 200px;
       }
     }
 
-    /* Tablet-specific styles */
-    @media (min-width: 769px) and (max-width: 1024px) {
-      .profile-card {
-        max-width: 450px;
-      }
-
-      .profile-card img {
-        max-width: 260px;
-        height: 300px;
-      }
-    }
-
-    /* Large screen styles */
-    @media (min-width: 1200px) {
-      .profile-container {
-        max-width: 1400px;
-      }
-
-      .profile-card {
-        max-width: 550px;
-      }
-
-      .profile-card img {
-        max-width: 320px;
-        height: 360px;
-      }
-    }
-
-    /* Orientation-specific adjustments */
+    /* Orientation adjustments */
     @media (max-height: 600px) and (orientation: landscape) {
+      .main-container {
+        min-height: auto;
+        padding: 10px;
+        gap: 15px;
+      }
+
       .header {
-        margin: 15px 0 10px;
+        margin-bottom: 10px;
       }
 
       .profile-card {
@@ -773,27 +763,11 @@
       }
     }
 
-    /* High DPI screens */
-    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-      .profile-card img {
-        filter: contrast(1.1) brightness(1.05);
-      }
-    }
-
-    /* Reduced motion for accessibility */
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
-      }
-    }
-
-    /* Dark mode support (already dark but adding for completeness) */
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text-primary: #ffffff;
-        --text-secondary: #a3a3a3;
       }
     }
   </style>
@@ -803,59 +777,63 @@
     <span>←</span> Back to Universe
   </button>
 
-  <div class="header">
-    <h1>512RELATES</h1>
-    <p>Find Your Sonic Soulmate</p>
-  </div>
-
-  <!-- Loading State -->
-  <div id="loadingState" class="loading">
-    <div class="spinner"></div>
-    <p style="margin-top: 16px; font-size: 18px; font-weight: 500;">Connecting to your wallet...</p>
-  </div>
-
-  <!-- No Wallet State -->
-  <div id="noWalletState" class="no-wallet-state">
-    <div class="status-card error">
-      <h3>🔌 No Wallet Connected</h3>
-      <p style="margin: 16px 0;">Connect your wallet to start dating on Sonic</p>
-      <button class="connect-wallet-btn" onclick="goToIndex()">
-        Connect Wallet
-      </button>
+  <div class="main-container">
+    <div class="header">
+      <h1>512RELATES</h1>
+      <p>Find Your Sonic Soulmate</p>
     </div>
-  </div>
 
-  <!-- Error State -->
-  <div id="errorState" class="error-state">
-    <div class="status-card error">
-      <h3>⚠️ Connection Error</h3>
-      <p id="errorMessage" style="margin: 16px 0;"></p>
-      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
-        <button onclick="initializeWallet()" class="btn" style="max-width: 150px;">Retry</button>
-        <button onclick="goToIndex()" class="btn" style="max-width: 150px; background: linear-gradient(135deg, #6B7280, #4B5563);">Go Home</button>
+    <!-- Loading State -->
+    <div id="loadingState" class="loading">
+      <div class="spinner"></div>
+      <p style="margin-top: 16px; font-size: 18px; font-weight: 500;">Connecting to your wallet...</p>
+    </div>
+
+    <!-- No Wallet State -->
+    <div id="noWalletState" class="no-wallet-state">
+      <div class="status-card error">
+        <h3>🔌 No Wallet Connected</h3>
+        <p style="margin: 16px 0;">Connect your wallet to start dating on Sonic</p>
+        <button class="connect-wallet-btn" onclick="goToIndex()">
+          Connect Wallet
+        </button>
       </div>
     </div>
-  </div>
 
-  <!-- Main Content -->
-  <div id="mainContent" style="display: none; width: 100%; flex: 1; display: flex; flex-direction: column; align-items: center;">
-    <div class="wallet-info" id="walletInfo"></div>
-    
-    <div class="profile-container" id="profileContainer">
-      <div class="profile-card">
-        <img id="avatar" src="assets/profiles/avatar_woman.jpg" alt="profile" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSJncmFkaWVudCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMjQiPkF2YXRhcjwvdGV4dD4KPHN2Zz4='">
-        <div class="nickname" id="nickname">Loading...</div>
-        <div class="wallet" id="walletAddress">0x...</div>
-        <div class="tags" id="tags">
-          <div>📍 Loading location...</div>
-          <div>📏 Loading height...</div>
-          <div>🌎 Loading ethnicity...</div>
-          <div>🎂 Loading age...</div>
+    <!-- Error State -->
+    <div id="errorState" class="error-state">
+      <div class="status-card error">
+        <h3>⚠️ Connection Error</h3>
+        <p id="errorMessage" style="margin: 16px 0;"></p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
+          <button onclick="initializeWallet()" class="btn" style="max-width: 150px;">Retry</button>
+          <button onclick="goToIndex()" class="btn" style="max-width: 150px; background: linear-gradient(135deg, #6B7280, #4B5563);">Go Home</button>
         </div>
-        <div class="actions">
-          <button class="btn" onclick="openConnectModal()" id="connectBtn">
-            Connect
-          </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" style="display: none;">
+      <div class="content-wrapper">
+        <div class="wallet-info" id="walletInfo"></div>
+        
+        <div class="profile-container" id="profileContainer">
+          <div class="profile-card">
+            <img id="avatar" src="assets/profiles/avatar_woman.jpg" alt="profile" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSJncmFkaWVudCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMjQiPkF2YXRhcjwvdGV4dD4KPHN2Zz4='">
+            <div class="nickname" id="nickname">Loading...</div>
+            <div class="wallet" id="walletAddress">0x...</div>
+            <div class="tags" id="tags">
+              <div>📍 Loading location...</div>
+              <div>📏 Loading height...</div>
+              <div>🌎 Loading ethnicity...</div>
+              <div>🎂 Loading age...</div>
+            </div>
+            <div class="actions">
+              <button class="btn" onclick="openConnectModal()" id="connectBtn">
+                Connect
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -882,12 +860,6 @@
 
   <!-- Transaction Status -->
   <div id="transactionStatus" style="display: none;"></div>
-
-  <!-- <script>
-    // The JavaScript code remains the same as in your original file
-    // Only CSS has been modified for responsiveness
-    // [JavaScript code unchanged - same as in your original file]
-  </script> -->
 
   <script>
     // Sonic network configuration

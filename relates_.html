@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>512RELATES - Sonic Dating</title>
   <script src="assets/js/libs/ethers.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -26,6 +27,15 @@
       --success: #10B981;
       --warning: #F59E0B;
       --error: #EF4444;
+      
+      /* Responsive variables */
+      --header-size: clamp(2.5rem, 6vw, 4rem);
+      --subheader-size: clamp(0.9rem, 3vw, 1rem);
+      --profile-img-size: clamp(200px, 70vw, 280px);
+      --profile-img-height: clamp(240px, 80vw, 320px);
+      --button-padding: clamp(12px, 3vw, 16px) clamp(20px, 4vw, 32px);
+      --modal-padding: clamp(20px, 5vw, 40px);
+      --tag-font-size: clamp(0.8rem, 2.5vw, 0.95rem);
     }
 
     body {
@@ -33,12 +43,13 @@
       color: var(--text-primary);
       font-family: 'Inter', sans-serif;
       margin: 0;
-      overflow: hidden;
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
+      padding: 0 10px;
+      overflow-x: hidden;
     }
 
     /* Enhanced animated background */
@@ -85,10 +96,12 @@
     }
 
     .header {
-      margin: 40px 0 20px;
+      margin: clamp(20px, 6vw, 40px) 0 clamp(10px, 3vw, 20px);
       text-align: center;
       position: relative;
       z-index: 10;
+      width: 100%;
+      max-width: 1200px;
     }
 
     .header::before {
@@ -97,8 +110,8 @@
       top: -30px;
       left: 50%;
       transform: translateX(-50%);
-      width: 200px;
-      height: 200px;
+      width: clamp(150px, 50vw, 200px);
+      height: clamp(150px, 50vw, 200px);
       background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%);
       border-radius: 50%;
       animation: pulse 4s ease-in-out infinite;
@@ -112,7 +125,7 @@
 
     .header h1 {
       font-family: 'Orbitron', monospace;
-      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-size: var(--header-size);
       font-weight: 900;
       background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple), var(--accent-cyan));
       background-size: 300% 300%;
@@ -122,6 +135,7 @@
       animation: gradientFlow 3s ease-in-out infinite;
       margin-bottom: 8px;
       text-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
+      padding: 0 10px;
     }
 
     @keyframes gradientFlow {
@@ -130,20 +144,21 @@
     }
 
     .header p {
-      font-size: 16px;
+      font-size: var(--subheader-size);
       color: var(--text-secondary);
       font-weight: 500;
       letter-spacing: 1px;
+      padding: 0 10px;
     }
 
     .back-btn {
       position: fixed;
-      top: 20px;
-      left: 20px;
+      top: clamp(10px, 3vw, 20px);
+      left: clamp(10px, 3vw, 20px);
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       color: var(--text-primary);
-      padding: 12px 20px;
+      padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px);
       border-radius: 50px;
       font-family: 'Inter', sans-serif;
       font-weight: 500;
@@ -154,7 +169,8 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 14px;
+      font-size: clamp(12px, 3vw, 14px);
+      white-space: nowrap;
     }
 
     .back-btn:hover {
@@ -172,6 +188,7 @@
       min-height: 60vh;
       gap: 20px;
       text-align: center;
+      padding: 20px;
     }
 
     .loading.show, .error-state.show, .no-wallet-state.show {
@@ -179,8 +196,8 @@
     }
 
     .spinner {
-      width: 60px;
-      height: 60px;
+      width: clamp(40px, 10vw, 60px);
+      height: clamp(40px, 10vw, 60px);
       border: 3px solid var(--glass-border);
       border-top: 3px solid var(--accent-pink);
       border-radius: 50%;
@@ -196,13 +213,14 @@
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 20px;
-      padding: 20px;
+      padding: clamp(15px, 3vw, 20px);
       backdrop-filter: blur(20px);
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: clamp(10px, 2vw, 16px);
+      margin: clamp(10px, 3vw, 20px);
       max-width: 600px;
+      width: 100%;
       position: relative;
       overflow: hidden;
     }
@@ -234,14 +252,14 @@
 
     .wallet-info strong {
       color: var(--accent-cyan);
-      font-size: 12px;
+      font-size: clamp(10px, 2.5vw, 12px);
       text-transform: uppercase;
       letter-spacing: 1px;
       font-weight: 600;
     }
 
     .wallet-info span {
-      font-size: 14px;
+      font-size: clamp(12px, 2.5vw, 14px);
       font-weight: 500;
       font-family: monospace;
     }
@@ -252,8 +270,9 @@
       align-items: center;
       justify-content: center;
       flex: 1;
-      padding: 20px;
-      max-width: 100%;
+      padding: clamp(10px, 3vw, 20px);
+      width: 100%;
+      max-width: 1200px;
     }
 
     .profile-container.show {
@@ -264,8 +283,8 @@
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 25px;
-      padding: 30px;
-      max-width: 420px;
+      padding: clamp(20px, 4vw, 30px);
+      max-width: 500px;
       width: 100%;
       text-align: center;
       backdrop-filter: blur(20px);
@@ -275,6 +294,7 @@
         0 0 30px rgba(236, 72, 153, 0.2);
       transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       animation: cardFloat 6s ease-in-out infinite;
+      margin: 0 10px;
     }
 
     @keyframes cardFloat {
@@ -310,11 +330,11 @@
 
     .profile-card img {
       width: 100%;
-      max-width: 280px;
-      height: 320px;
+      max-width: var(--profile-img-size);
+      height: var(--profile-img-height);
       border-radius: 20px;
       object-fit: cover;
-      margin-bottom: 20px;
+      margin-bottom: clamp(15px, 3vw, 20px);
       box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
       transition: all 0.4s ease;
     }
@@ -325,10 +345,10 @@
     }
 
     .nickname {
-      font-size: 1.8rem;
+      font-size: clamp(1.5rem, 5vw, 1.8rem);
       font-weight: 700;
       color: var(--accent-cyan);
-      margin-bottom: 10px;
+      margin-bottom: clamp(8px, 2vw, 10px);
       font-family: 'Orbitron', monospace;
       text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
       animation: nameGlow 3s ease-in-out infinite alternate;
@@ -340,25 +360,26 @@
     }
 
     .wallet {
-      font-size: 0.95rem;
+      font-size: clamp(0.85rem, 2.5vw, 0.95rem);
       color: var(--accent-pink);
-      margin-bottom: 16px;
+      margin-bottom: clamp(12px, 2.5vw, 16px);
       font-family: monospace;
       background: rgba(236, 72, 153, 0.1);
-      padding: 8px 16px;
+      padding: clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 16px);
       border-radius: 15px;
       border: 1px solid rgba(236, 72, 153, 0.3);
+      word-break: break-all;
     }
 
     .tags {
-      font-size: 15px;
+      font-size: var(--tag-font-size);
       color: var(--text-secondary);
-      margin: 16px 0 24px;
+      margin: clamp(12px, 2.5vw, 16px) 0 clamp(20px, 4vw, 24px);
       display: grid;
-      gap: 8px;
+      gap: clamp(6px, 1.5vw, 8px);
       text-align: left;
       background: rgba(255, 255, 255, 0.03);
-      padding: 20px;
+      padding: clamp(15px, 3vw, 20px);
       border-radius: 15px;
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
@@ -374,19 +395,19 @@
     .actions {
       display: flex;
       justify-content: center;
-      gap: 15px;
-      margin-top: 20px;
+      gap: clamp(10px, 2.5vw, 15px);
+      margin-top: clamp(15px, 3vw, 20px);
     }
 
     .btn {
       background: linear-gradient(135deg, var(--accent-gold), #D97706);
       border: none;
       border-radius: 50px;
-      padding: 16px 32px;
+      padding: var(--button-padding);
       font-weight: 600;
       color: white;
       cursor: pointer;
-      font-size: 16px;
+      font-size: clamp(14px, 3vw, 16px);
       font-family: 'Inter', sans-serif;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
@@ -394,6 +415,7 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+      white-space: nowrap;
     }
 
     .btn::before {
@@ -425,11 +447,11 @@
 
     .nav-btns {
       position: fixed;
-      bottom: 30px;
+      bottom: clamp(20px, 5vw, 30px);
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 30px;
+      gap: clamp(20px, 4vw, 30px);
       z-index: 100;
     }
 
@@ -437,9 +459,9 @@
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      font-size: 24px;
+      width: clamp(50px, 12vw, 60px);
+      height: clamp(50px, 12vw, 60px);
+      font-size: clamp(20px, 5vw, 24px);
       color: var(--text-primary);
       cursor: pointer;
       backdrop-filter: blur(20px);
@@ -471,6 +493,7 @@
       align-items: center;
       z-index: 2000;
       animation: modalFadeIn 0.3s ease;
+      padding: 15px;
     }
 
     @keyframes modalFadeIn {
@@ -484,11 +507,11 @@
 
     .modal-content {
       background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(45, 55, 72, 0.95));
-      padding: 40px;
+      padding: var(--modal-padding);
       border-radius: 25px;
       text-align: center;
       max-width: 400px;
-      width: 90%;
+      width: 100%;
       position: relative;
       backdrop-filter: blur(20px);
       border: 2px solid var(--glass-border);
@@ -516,24 +539,24 @@
     }
 
     .modal-content h3 {
-      margin-bottom: 24px;
+      margin-bottom: clamp(16px, 3vw, 24px);
       font-family: 'Orbitron', monospace;
-      font-size: 1.4rem;
+      font-size: clamp(1.2rem, 4vw, 1.4rem);
       color: var(--accent-cyan);
     }
 
     .modal-btn {
       display: block;
       width: 100%;
-      margin: 12px 0;
-      padding: 16px 24px;
+      margin: clamp(8px, 2vw, 12px) 0;
+      padding: clamp(14px, 3vw, 16px) clamp(20px, 4vw, 24px);
       background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
       color: white;
       border: none;
       border-radius: 50px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 16px;
+      font-size: clamp(14px, 3vw, 16px);
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
@@ -561,18 +584,18 @@
 
     .close-btn {
       position: absolute;
-      top: 15px;
-      right: 20px;
+      top: clamp(10px, 2vw, 15px);
+      right: clamp(15px, 3vw, 20px);
       background: none;
       border: none;
       color: var(--error);
-      font-size: 28px;
+      font-size: clamp(24px, 5vw, 28px);
       cursor: pointer;
       padding: 8px;
       border-radius: 50%;
       transition: all 0.3s ease;
-      width: 44px;
-      height: 44px;
+      width: clamp(40px, 8vw, 44px);
+      height: clamp(40px, 8vw, 44px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -588,11 +611,12 @@
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 16px;
-      padding: 24px;
-      margin: 20px;
+      padding: clamp(20px, 4vw, 24px);
+      margin: clamp(15px, 3vw, 20px);
       backdrop-filter: blur(20px);
       text-align: center;
       max-width: 500px;
+      width: 100%;
     }
 
     .status-card.error {
@@ -606,9 +630,9 @@
     }
 
     .status-card h3 {
-      margin-bottom: 12px;
+      margin-bottom: clamp(10px, 2.5vw, 12px);
       font-family: 'Orbitron', monospace;
-      font-size: 1.2rem;
+      font-size: clamp(1rem, 3vw, 1.2rem);
     }
 
     /* Connect wallet button */
@@ -616,9 +640,9 @@
       background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
       color: white;
       border: none;
-      padding: 20px 40px;
+      padding: clamp(16px, 4vw, 20px) clamp(30px, 6vw, 40px);
       border-radius: 50px;
-      font-size: 18px;
+      font-size: clamp(16px, 4vw, 18px);
       font-weight: 600;
       cursor: pointer;
       transition: all 0.4s ease;
@@ -633,25 +657,31 @@
       box-shadow: 0 15px 40px rgba(139, 92, 246, 0.5);
     }
 
+    /* Transaction Status */
+    #transactionStatus {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3000;
+      max-width: 400px;
+      width: 90%;
+      display: none;
+    }
+
     /* Responsive design */
     @media (max-width: 768px) {
+      .wallet-info {
+        grid-template-columns: 1fr;
+      }
+
       .profile-card {
         padding: 20px;
-        margin: 10px;
       }
 
       .profile-card img {
         max-width: 240px;
         height: 280px;
-      }
-
-      .nickname {
-        font-size: 1.5rem;
-      }
-
-      .wallet-info {
-        grid-template-columns: 1fr;
-        margin: 10px;
       }
 
       .nav-btns {
@@ -669,10 +699,6 @@
         margin: 10px;
         align-self: flex-start;
       }
-
-      body {
-        overflow-y: auto;
-      }
     }
 
     @media (max-width: 480px) {
@@ -681,7 +707,93 @@
       }
 
       .modal-content {
-        padding: 30px 20px;
+        padding: 20px 15px;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+
+    /* Tablet-specific styles */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .profile-card {
+        max-width: 450px;
+      }
+
+      .profile-card img {
+        max-width: 260px;
+        height: 300px;
+      }
+    }
+
+    /* Large screen styles */
+    @media (min-width: 1200px) {
+      .profile-container {
+        max-width: 1400px;
+      }
+
+      .profile-card {
+        max-width: 550px;
+      }
+
+      .profile-card img {
+        max-width: 320px;
+        height: 360px;
+      }
+    }
+
+    /* Orientation-specific adjustments */
+    @media (max-height: 600px) and (orientation: landscape) {
+      .header {
+        margin: 15px 0 10px;
+      }
+
+      .profile-card {
+        padding: 15px;
+      }
+
+      .profile-card img {
+        max-width: 180px;
+        height: 220px;
+        margin-bottom: 10px;
+      }
+
+      .tags {
+        margin: 10px 0 15px;
+        padding: 12px;
+      }
+
+      .nav-btns {
+        bottom: 15px;
+      }
+    }
+
+    /* High DPI screens */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .profile-card img {
+        filter: contrast(1.1) brightness(1.05);
+      }
+    }
+
+    /* Reduced motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Dark mode support (already dark but adding for completeness) */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text-primary: #ffffff;
+        --text-secondary: #a3a3a3;
       }
     }
   </style>
@@ -726,7 +838,7 @@
   </div>
 
   <!-- Main Content -->
-  <div id="mainContent" style="display: none; width: 100%; flex: 1; display: flex; flex-direction: column;">
+  <div id="mainContent" style="display: none; width: 100%; flex: 1; display: flex; flex-direction: column; align-items: center;">
     <div class="wallet-info" id="walletInfo"></div>
     
     <div class="profile-container" id="profileContainer">
@@ -770,6 +882,12 @@
 
   <!-- Transaction Status -->
   <div id="transactionStatus" style="display: none;"></div>
+
+  <!-- <script>
+    // The JavaScript code remains the same as in your original file
+    // Only CSS has been modified for responsiveness
+    // [JavaScript code unchanged - same as in your original file]
+  </script> -->
 
   <script>
     // Sonic network configuration
@@ -983,6 +1101,8 @@
         }
 
         const network = await provider.getNetwork();
+        console.log('Connected network:', network);
+        console.log('TARGET_NETWORK:', TARGET_NETWORK);
         if (network.chainId !== TARGET_NETWORK.chainId) {
           showError(`Please switch to ${TARGET_NETWORK.chainName} (Chain ID ${TARGET_NETWORK.chainId}) to use 512RELATES.`);
           return;
